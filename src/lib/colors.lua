@@ -1,4 +1,4 @@
-local bib = require("lib.modules.biblib")
+local bib = require("lib.biblib")
 local colors = {}
 colors.list = {
 	["Acid Green"] = { 0.5607843137254902, 0.99607843137254903, 0.035294117647058823 },

@@ -1,14 +1,13 @@
 local tile = require "tile"
 local vec = require "lib.vector"
 return {
-	---@param pos Vector.lua
-	---@return Grid.lua
-	new = function(pos)
+	---@param preset Level.lua
+	new = function()
 		---@class Grid.lua
 		local grid = {
 			---@type Tile.lua[][]
 			tiles = {},
-			pos = pos,
+			pos = vec.new(0, 0),
 			canvas = love.graphics.newCanvas(),
 		}
 		grid.canvas:setFilter("nearest", "nearest")
@@ -20,6 +19,7 @@ return {
 
 		---@param pos Vector.lua
 		function grid:getTile(pos)
+			if not grid.tiles[pos.x] then return nil end
 			return grid.tiles[pos.x][pos.y]
 		end
 
@@ -29,16 +29,44 @@ return {
 				grid:setTile(vec.new(x, y), "void")
 			end
 		end
+		---@param movement Vector.lua
+		function grid:step(movement)
+			---@type Entity.lua
+			local player = grid:find("player")[1]
+			if not player then return false end
+			player:move(movement)
+			if not player then return false end
+		end
+
+		---@param type tileTypes|entityTypes
+		function grid:find(type)
+			local hits = {}
+			for _, row in ipairs(self.tiles) do
+				for _, tile in ipairs(row) do
+					if tile.type == type then
+						hits[#hits + 1] = tile
+					end
+					for _, entity in ipairs(tile.entities) do
+						if entity.type == type then
+							hits[#hits + 1] = entity
+						end
+					end
+				end
+			end
+			return hits
+		end
 
 		function grid:draw()
 			love.graphics.setCanvas(self.canvas)
+			love.graphics.translate(5, 5)
 			love.graphics.clear()
+			love.graphics.setLineWidth(1)
 			for x, row in ipairs(self.tiles) do
 				for y, tile in ipairs(row) do
 					tile:draw()
 					--outline
-					love.graphics.setColor(1, 1, 1, 0.25)
-					love.graphics.rectangle("line", 1 + 16 * (x - 1), 1 + 16 * (y - 1), 16, 16)
+					love.graphics.setColor(1, 1, 1, 0.1)
+					love.graphics.rectangle("line", 16 * (x - 1) + 1, 16 * (y - 1) + 1, 16 - 2, 16 - 2)
 					love.graphics.setColor(1, 1, 1, 1)
 				end
 			end

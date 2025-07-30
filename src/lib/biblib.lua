@@ -1,4 +1,21 @@
+---@alias directions "up"|"down"|"left"|"right"|"w"|"s"|"a"|"d"
+local vec = require("lib.vector")
 return {
+	---@param direction directions
+	---@return Vector.lua
+	dirVec = function(direction)
+		local vector
+		if direction == "up" or direction == "w" then
+			vector = vec.new(0, -1)
+		elseif direction == "down" or direction == "s" then
+			vector = vec.new(0, 1)
+		elseif direction == "left" or direction == "a" then
+			vector = vec.new(-1, 0)
+		elseif direction == "right" or direction == "d" then
+			vector = vec.new(1, 0)
+		end
+		return vector
+	end,
 	getTableKeys = function(t, includeMeta)
 		local keys = {}
 		for k, _ in pairs(t) do
