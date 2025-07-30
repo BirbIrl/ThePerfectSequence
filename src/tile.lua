@@ -1,4 +1,5 @@
 ---@alias tileTypes "void"|"ground"|"wall"
+local colors = require "lib.colors"
 return {
 	---@param grid Grid.lua
 	---@return Tile.lua
@@ -14,15 +15,28 @@ return {
 			---@type Entity.lua[]
 			entities = {},
 		}
+		---@param entityType entityTypes
+		---@return Entity.lua[]
+		function tile:findEntities(entityType)
+			local hits = {}
+			for _, entity in ipairs(self.entities) do
+				if entity.type == entityType then
+					hits[#hits + 1] = entity
+				end
+			end
+			return hits
+		end
+
 		function tile:draw()
 			if self.type == "void" then
-				--love.graphics.rectangle("line", 16 * (self.pos.x - 1), 16 * (self.pos.y - 1), 16, 16)
-			end
-			if self.type == "ground" then
+				love.graphics.setColor(0, 0, 0, 0)
+			elseif self.type == "ground" then
 				love.graphics.setColor(1, 1, 1, 0.5)
-				love.graphics.rectangle("fill", 16 * (self.pos.x - 1), 16 * (self.pos.y - 1), 16, 16)
-				love.graphics.setColor(1, 1, 1, 1)
+			elseif self.type == "wall" then
+				love.graphics.setColor(colors.list["Brown Red"])
 			end
+			love.graphics.rectangle("fill", 16 * (self.pos.x - 1), 16 * (self.pos.y - 1), 16, 16)
+			love.graphics.setColor(1, 1, 1, 1)
 			for _, entity in ipairs(self.entities) do
 				entity:draw()
 			end

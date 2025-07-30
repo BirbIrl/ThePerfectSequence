@@ -45,10 +45,9 @@ return {
 				for _, tile in ipairs(row) do
 					if tile.type == type then
 						hits[#hits + 1] = tile
-					end
-					for _, entity in ipairs(tile.entities) do
-						if entity.type == type then
-							hits[#hits + 1] = entity
+					else
+						for i, entity in ipairs(tile:findEntities(type)) do
+							hits[i] = entity
 						end
 					end
 				end
@@ -66,7 +65,9 @@ return {
 					tile:draw()
 					--outline
 					love.graphics.setColor(1, 1, 1, 0.1)
-					love.graphics.rectangle("line", 16 * (x - 1) + 1, 16 * (y - 1) + 1, 16 - 2, 16 - 2)
+					if tile.type ~= "wall" then
+						love.graphics.rectangle("line", 16 * (x - 1) + 1, 16 * (y - 1) + 1, 16 - 2, 16 - 2)
+					end
 					love.graphics.setColor(1, 1, 1, 1)
 				end
 			end

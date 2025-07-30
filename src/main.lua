@@ -1,5 +1,10 @@
 ---@diagnostic disable-next-line: lowercase-global
 lurker = require "lib.lurker"
+serpent = require "lib.serpent"
+function sprint(table)
+	print(serpent.block(table))
+end
+
 local bib = require "lib.biblib"
 local entity = require "entity"
 local vec = require "lib.vector"
@@ -18,6 +23,7 @@ function lurker.postswap(file)
 	if file:sub(0, 6) == "levels" then
 		local index = file:sub(8, -5)
 		loader:reload(index)
+		field1 = loader:load(1)
 	end
 end
 

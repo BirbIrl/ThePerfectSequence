@@ -7,7 +7,6 @@ local Grid = require("grid")
 local loader = {}
 loader.levelData = {}
 function loader:reload(index)
-	print(index)
 	loader.levelData[index] = require("levels." .. index)
 end
 
@@ -31,10 +30,12 @@ function loader:parse(code)
 			tile = "ground"
 		elseif letter == "w" then
 			tile = "wall"
-		elseif letter == "p" then
+		elseif letter == "P" then
 			entities[#entities + 1] = "player"
-		elseif letter == "b" then
+		elseif letter == "B" then
 			entities[#entities + 1] = "box"
+		elseif letter == "G" then
+			entities[#entities + 1] = "glass"
 		end
 	end
 	return tile, entities
