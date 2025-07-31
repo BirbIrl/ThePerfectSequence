@@ -59,6 +59,7 @@ return {
 
 		function grid:draw()
 			love.graphics.setCanvas(self.canvas)
+			love.graphics.push()
 			love.graphics.translate(5, 5)
 			love.graphics.clear()
 			love.graphics.setLineWidth(1)
@@ -73,6 +74,7 @@ return {
 					love.graphics.setColor(1, 1, 1, 1)
 				end
 			end
+			love.graphics.pop()
 			love.graphics.setCanvas()
 			love.graphics.setBlendMode("alpha", "premultiplied")
 			love.graphics.draw(self.canvas, self.pos.x, self.pos.y, 0, 4, 4)

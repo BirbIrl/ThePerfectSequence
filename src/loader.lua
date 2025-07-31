@@ -25,7 +25,10 @@ end
 local filenames = love.filesystem.getDirectoryItems("levels")
 table.sort(filenames)
 for index, level in ipairs(filenames) do
-	loader:reload(index)
+	local levelNum = tonumber(level:sub(0, -5))
+	if levelNum then
+		loader:reload(levelNum)
+	end
 end
 
 ---@param code string
@@ -57,6 +60,10 @@ end
 
 function loader:load(index)
 	local grid = Grid.new()
+	local level = self.levelData[index]
+	if not level then
+		error("game attempted to load level: levels/" .. index .. ".lua, but couldn't find it")
+	end
 	for y, row in ipairs(self.levelData[index]) do
 		for x, code in ipairs(row) do
 			local pos = vec.new(x, y)
