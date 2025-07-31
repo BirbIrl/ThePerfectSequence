@@ -38,10 +38,14 @@ return {
 
 		function gamestate:step(directionName, record)
 			local _, moveVec = bib.dirVec(directionName)
+			local moved = false
 			for _, grid in ipairs(self.grids) do
-				grid:step(moveVec)
+				if not grid.isBeat and not grid.isLost then
+					grid:step(moveVec)
+					moved = true
+				end
 			end
-			if record then
+			if moved and record then
 				self.moveCount = self.moveCount + 1
 				if self.inputs[self.moveCount] ~= directionName then
 					for index, _ in ipairs(self.inputs) do

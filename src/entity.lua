@@ -1,4 +1,4 @@
----@alias entityTypes "player"|"box"|"glass"|"teleporter"
+---@alias entityTypes "player"|"box"|"glass"|"teleporter"|"exit"
 local colors = require "lib.colors"
 local vec = require "lib.vector"
 return {
@@ -87,6 +87,8 @@ return {
 				love.graphics.setColor(colors.blend(colors.list["Sky Blue"], { nil, nil, nil, 0.2 }, 1))
 			elseif self.type == "teleporter" then
 				love.graphics.setColor(colors.list["Plum Purple"])
+			elseif self.type == "exit" then
+				love.graphics.setColor(colors.list["Blue"])
 			end
 			love.graphics.rectangle("fill", 16 * (self.tile.pos.x - 1) + 1, 16 * (self.tile.pos.y - 1) + 1, 16 - 2, 16 -
 				2)

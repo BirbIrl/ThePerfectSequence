@@ -9,6 +9,8 @@ return {
 			tiles = {},
 			pos = vec.new(0, 0),
 			canvas = love.graphics.newCanvas(),
+			isBeat = false,
+			isLost = false,
 		}
 		grid.canvas:setFilter("nearest", "nearest")
 		---@param pos Vector.lua
@@ -29,13 +31,32 @@ return {
 				grid:setTile(vec.new(x, y), "void")
 			end
 		end
+		function grid:checkWin()
+			for _, exit in ipairs(self:find("exit")) do
+				if not exit.tile:findEntities("box")[1] then
+					return false
+				end
+			end
+			self.isBeat = true
+			return true
+		end
+
+		function grid:checkLoss()
+			if self:find("player")[1] then
+				return true
+			end
+			self.isLost = true
+			return true
+		end
+
 		---@param movement Vector.lua
 		function grid:step(movement)
 			---@type Entity.lua
 			local player = grid:find("player")[1]
-			if not player then return false end
 			player:move(movement)
-			if not player then return false end
+			grid:checkWin()
+			grid:checkLoss()
+			return "step"
 		end
 
 		---@param type tileTypes|entityTypes
@@ -77,6 +98,14 @@ return {
 			love.graphics.pop()
 			love.graphics.setCanvas()
 			love.graphics.setBlendMode("alpha", "premultiplied")
+
+			if grid.isBeat then
+				love.graphics.setColor(0.75, 1, 0.75, 0.5)
+			elseif grid.isLost then
+				love.graphics.setColor(1, 0.75, 0.75, 0.5)
+			else
+				love.graphics.setColor(1, 1, 1, 1)
+			end
 			love.graphics.draw(self.canvas, self.pos.x, self.pos.y, 0, 4, 4)
 			love.graphics.setBlendMode("alpha")
 		end

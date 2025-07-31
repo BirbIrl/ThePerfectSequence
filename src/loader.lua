@@ -10,7 +10,7 @@ return {
 	{ "", "", "", "", "", "", "", "" },
 }
 --]]
----@alias codes "g"|"w"|"p"|"b"
+---@alias codes "g"|"w"|"P"|"B"|"G"|"E"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"|"0"
 local vec = require "lib.vector"
 local Entity = require "entity"
 local serpent = require "lib.serpent"
@@ -51,6 +51,8 @@ function loader:parse(code)
 			entities[#entities + 1] = { name = "box" }
 		elseif letter == "G" then
 			entities[#entities + 1] = { name = "glass" }
+		elseif letter == "E" then
+			entities[#entities + 1] = { name = "exit" }
 		elseif tonumber(letter) then
 			entities[#entities + 1] = { name = "teleporter", data = { link = tonumber(letter) } }
 		end
@@ -74,6 +76,8 @@ function loader:load(index)
 			end
 		end
 	end
+	grid:checkWin()
+	grid:checkLoss()
 	return grid
 end
 
