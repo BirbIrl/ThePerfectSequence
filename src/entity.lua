@@ -28,17 +28,23 @@ return {
 			return false
 		end
 
+		function entity:triggerIce(tile)
+			if self.type == "player" then
+				local glass = tile:findEntities("glass")[1]
+				if glass then
+					local entities = glass.tile.entities
+					while entities[1] do
+						entities[1]:removeFromTile()
+					end
+				end
+			end
+		end
+
 		function entity:removeFromTile()
 			local index = entity:getIndex()
 			if not index then return false end
 			table.remove(self.tile.entities, index)
-			if self.type == "player" then
-				local glass = self.tile:findEntities("glass")[1]
-				if glass then
-					glass:removeFromTile()
-				end
-			end
-
+			entity:triggerIce(self.tile)
 			self.tile = nil
 
 			return true
@@ -68,6 +74,7 @@ return {
 					end
 					local teleportTile = self.tile.grid:find("teleporter", { link = targetLink })[1].tile
 					if not teleportTile:findEntities("box")[1] and not teleportTile:findEntities("player")[1] then
+						self:triggerIce(targetTile)
 						targetTile = teleportTile
 					end
 				end
