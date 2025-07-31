@@ -31,6 +31,7 @@ end
 local keyCooldown = 0
 ---@type love.KeyConstant?
 local keyCooldownKey = nil
+local timer = 0
 function love.update(dt)
 	if keyCooldown > 0 then
 		keyCooldown = keyCooldown - dt
@@ -39,6 +40,9 @@ function love.update(dt)
 		end
 	end
 	lurker.update()
+	gamestate:update(dt)
+	timer = timer + dt
+	print(timer)
 end
 
 function lurker.postswap(file)
@@ -92,8 +96,8 @@ function love.draw()
 			scale)
 	end
 	local message =
-	{ { 1, 1, 1, 1 },
-		"\nUse q/e to go back/forward in time, shift+q/e to go to the beginning/end of a set of inputs and r to hard restart\nUse: ctrl+c/ctrl+v to copy inputs to clipboard\nThe game reloads and replays your inputs whenver you update a level file, open up your editor with any levels/[num].lua file on another monitor\nCheck main.lua for level selection\n\ninputs: " }
+	{ { 1, 1, 1, 1 }, "FPS: " .. love.timer.getFPS() ..
+	"\nUse q/e to go back/forward in time, shift+q/e to go to the beginning/end of a set of inputs and r to hard restart\nUse: ctrl+c/ctrl+v to copy inputs to clipboard\nThe game reloads and replays your inputs whenver you update a level file, open up your editor with any levels/[num].lua file on another monitor\nCheck main.lua for level selection\n\ninputs: " }
 	for i, input in ipairs(gamestate.inputs) do
 		if gamestate.moveCount == i - 1 then
 			message[#message + 1] = { 1, 1, 1, 0.5 }

@@ -31,6 +31,12 @@ return {
 			gamestate.grids = grids
 		end
 
+		function gamestate:update(dt)
+			for _, grid in ipairs(self.grids) do
+				grid:update(dt)
+			end
+		end
+
 		function gamestate:restart(hard)
 			gamestate:reload()
 			if hard then
@@ -81,7 +87,7 @@ return {
 		function gamestate:backwards()
 			local inputNum = self.moveCount
 			if inputNum > 0 then
-				self:moveToInput(inputNum - 1)
+				self:moveToInput(inputNum - 1, true)
 				self.moveCount = self.moveCount - 1
 			end
 		end
@@ -99,6 +105,15 @@ return {
 			for i = 1, moveCount, 1 do
 				local moveVec = bib.dirVec(self.inputs[i])
 				self:step(moveVec)
+			end
+			for _, grid in ipairs(self.grids) do
+				for _, row in ipairs(grid.tiles) do
+					for _, tile in ipairs(row) do
+						for _, entity in ipairs(tile.entities) do
+							entity.anim = nil
+						end
+					end
+				end
 			end
 		end
 

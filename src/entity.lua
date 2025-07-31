@@ -1,6 +1,7 @@
 ---@alias entityTypes "player"|"box"|"glass"|"teleporter"|"exit"|"sensor"
 local colors = require "lib.colors"
 local vec = require "lib.vector"
+local bib = require "lib.biblib"
 return {
 	---@param tile Tile.lua
 	---@param type entityTypes
@@ -13,6 +14,8 @@ return {
 			---@type entityTypes
 			type = type,
 			data = data,
+			---@type {t: number, duration: number, type: string}
+			anim = nil
 		}
 
 
@@ -64,6 +67,7 @@ return {
 					box:move(box.tile.pos - self.tile.pos)
 					return true
 				end
+				self.anim = { t = 0, duration = 0.1, type = "shift", from = self.tile.pos, to = targetTile.pos }
 				local teleporter = targetTile:findEntities("teleporter")[1]
 				if teleporter then
 					local targetLink = teleporter.data.link
@@ -89,6 +93,15 @@ return {
 			return true
 		end
 
+		function entity:update(dt)
+			if self.anim then
+				self.anim.t = self.anim.t + dt
+				if self.anim.t > self.anim.duration then
+					self.anim = nil
+				end
+			end
+		end
+
 		function entity:draw()
 			if self.type == "player" then
 				love.graphics.setColor(colors.list["Acid Green"])
@@ -107,7 +120,11 @@ return {
 					love.graphics.setColor(colors.list["Yellow Brown"])
 				end
 			end
-			love.graphics.rectangle("fill", 16 * (self.tile.pos.x - 1) + 1, 16 * (self.tile.pos.y - 1) + 1, 16 - 2, 16 -
+			local pos = self.tile.pos
+			if self.anim and self.anim.type == "shift" then
+				pos = bib.lerp(self.anim.from, self.anim.to, self.anim.t / self.anim.duration)
+			end
+			love.graphics.rectangle("fill", 16 * (pos.x - 1) + 1, 16 * (pos.y - 1) + 1, 16 - 2, 16 -
 				2)
 			love.graphics.setColor(1, 1, 1, 1)
 		end

@@ -28,6 +28,12 @@ return {
 			return hits
 		end
 
+		function tile:update(dt)
+			for _, entity in ipairs(self.entities) do
+				entity:update(dt)
+			end
+		end
+
 		function tile:draw()
 			if self.type == "void" then
 				love.graphics.setColor(0, 0, 0, 0)

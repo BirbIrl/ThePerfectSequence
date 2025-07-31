@@ -85,6 +85,14 @@ return {
 			return hits
 		end
 
+		function grid:update(dt)
+			for _, row in ipairs(self.tiles) do
+				for _, tile in ipairs(row) do
+					tile:update(dt)
+				end
+			end
+		end
+
 		function grid:draw(x, y, scale)
 			love.graphics.setCanvas(self.canvas)
 			love.graphics.push()
