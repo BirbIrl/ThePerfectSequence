@@ -1,4 +1,4 @@
----@alias entityTypes "player"|"box"|"glass"
+---@alias entityTypes "player"|"box"|"glass"|"teleporter"
 local colors = require "lib.colors"
 local vec = require "lib.vector"
 return {
@@ -31,6 +31,7 @@ return {
 		function entity:removeFromTile()
 			local index = entity:getIndex()
 			if not index then return false end
+			local teleporter = self.tile:findEntities("teleporter")[1]
 			table.remove(self.tile.entities, index)
 			if self.type == "player" then
 				local glass = self.tile:findEntities("glass")[1]
@@ -38,12 +39,28 @@ return {
 					glass:removeFromTile()
 				end
 			end
+
 			self.tile = nil
+
+			if teleporter then
+				local targetLink = teleporter.data.link
+				if teleporter.data.link % 2 == 0 then
+					targetLink = targetLink - 1
+				else
+					targetLink = targetLink + 1
+				end
+				local linkedTile = teleporter.tile.grid:find("teleporter", { link = targetLink })[1].tile
+				local movableEntity = linkedTile:findEntities("player")[1] or linkedTile:findEntities("box")[1]
+				if movableEntity then
+					movableEntity:moveToTile(teleporter.tile)
+				end
+			end
+
 			return true
 		end
 
 		---@param targetTile? Tile.lua
-		function entity:moveToTile(targetTile)
+		function entity:moveToTile(targetTile, force)
 			if self.type ~= "glass" then
 				if not targetTile or targetTile.type == "void" and not targetTile:findEntities("glass")[1] then
 					self:removeFromTile()
@@ -56,6 +73,19 @@ return {
 					box:move(box.tile.pos - self.tile.pos)
 					return true
 				end
+				local teleporter = targetTile:findEntities("teleporter")[1]
+				if teleporter then
+					local targetLink = teleporter.data.link
+					if teleporter.data.link % 2 == 0 then
+						targetLink = targetLink - 1
+					else
+						targetLink = targetLink + 1
+					end
+					local teleportTile = self.tile.grid:find("teleporter", { link = targetLink })[1].tile
+					if not teleportTile:findEntities("box")[1] then
+						targetTile = teleportTile
+					end
+				end
 			end
 			self:removeFromTile()
 			table.insert(targetTile.entities, self)
@@ -67,7 +97,11 @@ return {
 			if self.type == "player" then
 				love.graphics.setColor(colors.list["Acid Green"])
 			elseif self.type == "box" then
-				love.graphics.setColor(colors.list["Bright Magenta"])
+				love.graphics.setColor(colors.list["Orange Brown"])
+			elseif self.type == "glass" then
+				love.graphics.setColor(colors.blend(colors.list["Sky Blue"], { nil, nil, nil, 0.2 }, 1))
+			elseif self.type == "teleporter" then
+				love.graphics.setColor(colors.list["Plum Purple"])
 			end
 			love.graphics.rectangle("fill", 16 * (self.tile.pos.x - 1) + 1, 16 * (self.tile.pos.y - 1) + 1, 16 - 2, 16 -
 				2)

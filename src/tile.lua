@@ -1,5 +1,6 @@
 ---@alias tileTypes "void"|"ground"|"wall"
 local colors = require "lib.colors"
+local bib = require "lib.biblib"
 return {
 	---@param grid Grid.lua
 	---@return Tile.lua
@@ -17,10 +18,10 @@ return {
 		}
 		---@param entityType entityTypes
 		---@return Entity.lua[]
-		function tile:findEntities(entityType)
+		function tile:findEntities(entityType, data)
 			local hits = {}
 			for _, entity in ipairs(self.entities) do
-				if entity.type == entityType then
+				if entity.type == entityType and (data == nil or bib.equals(data, entity.data)) then
 					hits[#hits + 1] = entity
 				end
 			end

@@ -10,7 +10,6 @@ local entity = require "entity"
 local vec = require "lib.vector"
 local loader = require "loader"
 local field1 = loader:load(1)
-
 function love.load()
 
 end

@@ -39,14 +39,16 @@ return {
 		end
 
 		---@param type tileTypes|entityTypes
-		function grid:find(type)
+		---@param data table
+		---@return (Tile.lua|Entity.lua)[]
+		function grid:find(type, data)
 			local hits = {}
 			for _, row in ipairs(self.tiles) do
 				for _, tile in ipairs(row) do
 					if tile.type == type then
 						hits[#hits + 1] = tile
 					else
-						for i, entity in ipairs(tile:findEntities(type)) do
+						for i, entity in ipairs(tile:findEntities(type, data)) do
 							hits[i] = entity
 						end
 					end

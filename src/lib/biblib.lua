@@ -1,6 +1,6 @@
 ---@alias directions "up"|"down"|"left"|"right"|"w"|"s"|"a"|"d"
 local vec = require("lib.vector")
-return {
+local biblib = {
 	---@param direction directions
 	---@return Vector.lua
 	dirVec = function(direction)
@@ -40,3 +40,33 @@ return {
 	end,
 	lerp = function(a, b, t) return a * (1 - t) + b * t end
 }
+
+function biblib.equals(a, b)
+	if type(a) ~= type(b) then
+		return false
+	end
+	if type(a) ~= "table" then
+		return a == b
+	end
+
+	local keySet = {}
+
+	for key1, value1 in pairs(a) do
+		local value2 = b[key1]
+		if value2 == nil then
+			return false
+		end
+		local result = biblib.equals(value1, value2)
+		if result == false then
+			return false
+		end
+		keySet[key1] = true
+	end
+
+	for key2, _ in pairs(b) do
+		if not keySet[key2] then return false end
+	end
+	return true
+end
+
+return biblib

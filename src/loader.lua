@@ -18,7 +18,7 @@ end
 
 ---@param code string
 ---@return tileTypes
----@return entityTypes[]
+---@return {name:entityTypes,data: table }[]
 function loader:parse(code)
 	---@type tileTypes
 	local tile = "void"
@@ -31,11 +31,13 @@ function loader:parse(code)
 		elseif letter == "w" then
 			tile = "wall"
 		elseif letter == "P" then
-			entities[#entities + 1] = "player"
+			entities[#entities + 1] = { name = "player" }
 		elseif letter == "B" then
-			entities[#entities + 1] = "box"
+			entities[#entities + 1] = { name = "box" }
 		elseif letter == "G" then
-			entities[#entities + 1] = "glass"
+			entities[#entities + 1] = { name = "glass" }
+		elseif tonumber(letter) then
+			entities[#entities + 1] = { name = "teleporter", data = { link = tonumber(letter) } }
 		end
 	end
 	return tile, entities
@@ -49,7 +51,7 @@ function loader:load(index)
 			local tileType, entityTypes = self:parse(code)
 			grid:setTile(pos, tileType)
 			for _, entityType in ipairs(entityTypes) do
-				Entity.new(grid:getTile(pos), entityType)
+				Entity.new(grid:getTile(pos), entityType.name, entityType.data)
 			end
 		end
 	end
