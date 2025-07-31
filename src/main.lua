@@ -68,9 +68,8 @@ function love.draw()
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
-function love.keypressed(key, isRepeat)
+function love.keypressed(key, _, isRepeat)
 	local directionName = bib.dirVec(key)
-	print(key)
 	if not isRepeat or keyCooldownKey ~= key or keyCooldown == 0 then
 		if directionName then
 			gamestate:step(directionName, true)
@@ -82,7 +81,8 @@ function love.keypressed(key, isRepeat)
 
 		keyCooldown = 0.08
 		keyCooldownKey = key
-	else
+	end
+	if not isRepeat then
 		if key == "e" and love.keyboard.isDown("lshift") then
 			gamestate:moveToInput(#gamestate.inputs)
 			gamestate.moveCount = #gamestate.inputs
