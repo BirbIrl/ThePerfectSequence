@@ -14,9 +14,9 @@ local vec = require "lib.vector"
 --- DEV ZONE ---
 --- levels named [number].lua are loaded from the `./levels/` folder, you can load the chosen one using the number below
 --- the level live-updates when you save it's file, and reloads the game replaying all inputs to reach the same point you're in
-local level = 0                                                         -- which level to load?
-local depth = 0                                                         -- how many previous levels should this display in parallel? (only 0/1 works well for now)
-local extra = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 } -- levels you always want to be loaded as preview
+local level = 0          -- which level to load?
+local depth = 0          -- how many previous levels should this display in parallel? (only 0/1 works well for now)
+local extra = { 15, 16 } -- levels you always want to be loaded as preview
 ---
 -- levels on which you wanna run checks
 local checks = Gamestate.new(0, 0, { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 })
@@ -120,7 +120,7 @@ function love.draw()
 		end
 	end
 	local x = 10
-	local y = 10 + sh
+	local y = 10 + sh - 90
 	love.graphics.pop()
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.printf(message, x, y, love.graphics.getWidth() - x, "left")
