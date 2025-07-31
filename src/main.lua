@@ -126,8 +126,13 @@ function love.keypressed(key, _, isRepeat)
 				gamestate.moveCount = #inputs
 				gamestate:restart()
 			end
+		elseif key == "r" and love.keyboard.isDown("lshift") then
+			lurker.hotswapfile("main.lua")
+			gamestate:restart(true)
 		elseif key == "r" then
 			lurker.hotswapfile("main.lua")
+			gamestate.moveCount = 0
+			gamestate:restart()
 		end
 	end
 	if checks then
