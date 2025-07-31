@@ -3,12 +3,14 @@ local bib = require "lib.biblib"
 return {
 	---@param level integer
 	---@param depth integer
-	new = function(level, depth)
+	---@param extra integer[]?
+	new = function(level, depth, extra)
 		depth = depth or 0
 		---@class Gamestate.lua
 		local gamestate = {
 			level = level,
 			depth = depth,
+			extra = extra or {},
 			---@type directions[]
 			inputs = {},
 			moveCount = 0,
@@ -18,10 +20,13 @@ return {
 		}
 		function gamestate:reload()
 			local grids = {}
-			for i = level - depth, level, 1 do
+			for i = self.level - self.depth, self.level, 1 do
 				if i > 0 then
 					grids[#grids + 1] = Loader:load(i)
 				end
+			end
+			for _, i in ipairs(self.extra) do
+				grids[#grids + 1] = Loader:load(i)
 			end
 			gamestate.grids = grids
 		end

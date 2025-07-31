@@ -13,10 +13,11 @@ local vec = require "lib.vector"
 --- DEV ZONE ---
 --- levels named [number].lua are loaded from the `./levels/` folder, you can load the chosen one using the number below
 --- the level live-updates when you save it's file, and reloads the game replaying all inputs to reach the same point you're in
-local level = 2 -- which level to load?
-local depth = 1 -- how many previous levels should this display in parallel? (only 0/1 works well for now)
+local level = 2    -- which level to load?
+local depth = 1    -- how many previous levels should this display in parallel? (only 0/1 works well for now)
+local extra = { 16 } -- levels you always want to be loaded at the end
 ---
-local gamestate = Gamestate.new(level, depth)
+local gamestate = Gamestate.new(level, depth, extra)
 function love.load()
 	love.keyboard.setKeyRepeat(true)
 end

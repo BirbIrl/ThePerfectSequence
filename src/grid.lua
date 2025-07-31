@@ -70,7 +70,7 @@ return {
 						hits[#hits + 1] = tile
 					else
 						for i, entity in ipairs(tile:findEntities(type, data)) do
-							hits[i] = entity
+							hits[#hits + 1] = entity
 						end
 					end
 				end
