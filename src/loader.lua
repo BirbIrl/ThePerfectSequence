@@ -61,10 +61,11 @@ function loader:parse(code)
 end
 
 function loader:load(index)
-	local grid = Grid.new()
+	local grid = Grid.new(index)
 	local level = self.levelData[index]
 	if not level then
-		error("game attempted to load level: levels/" .. index .. ".lua, but couldn't find it")
+		return nil
+		--error("game attempted to load level: levels/" .. index .. ".lua, but couldn't find it")
 	end
 	for y, row in ipairs(self.levelData[index]) do
 		for x, code in ipairs(row) do

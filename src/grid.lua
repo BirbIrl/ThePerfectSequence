@@ -2,7 +2,7 @@ local tile = require "tile"
 local vec = require "lib.vector"
 return {
 	---@param preset Level.lua
-	new = function()
+	new = function(id)
 		---@class Grid.lua
 		local grid = {
 			---@type Tile.lua[][]
@@ -11,6 +11,7 @@ return {
 			canvas = love.graphics.newCanvas(),
 			isBeat = false,
 			isLost = false,
+			id = id
 		}
 		grid.canvas:setFilter("nearest", "nearest")
 		---@param pos Vector.lua

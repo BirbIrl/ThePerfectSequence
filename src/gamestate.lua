@@ -63,6 +63,21 @@ return {
 			end
 		end
 
+		---@return {id: integer, state: "running"|"success"|"failed"}[]
+		function gamestate:status()
+			local statuses = {}
+			for _, grid in ipairs(self.grids) do
+				local state = "running"
+				if grid.isBeat then
+					state = "success"
+				elseif grid.isLost then
+					state = "failed"
+				end
+				statuses[#statuses + 1] = { id = grid.id, state = state }
+			end
+			return statuses
+		end
+
 		function gamestate:backwards()
 			local inputNum = self.moveCount
 			if inputNum > 0 then

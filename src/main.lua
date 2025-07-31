@@ -8,16 +8,18 @@ end
 Loader = require "loader"
 local Gamestate = require("gamestate")
 local bib = require "lib.biblib"
+local colors = require "lib.colors"
 local entity = require "entity"
 local vec = require "lib.vector"
 --- DEV ZONE ---
 --- levels named [number].lua are loaded from the `./levels/` folder, you can load the chosen one using the number below
 --- the level live-updates when you save it's file, and reloads the game replaying all inputs to reach the same point you're in
-local level = 2    -- which level to load?
-local depth = 1    -- how many previous levels should this display in parallel? (only 0/1 works well for now)
-local extra = { 16 } -- levels you always want to be loaded at the end
+local level = 2      -- which level to load?
+local depth = 1      -- how many previous levels should this display in parallel? (only 0/1 works well for now)
+local extra = { 16 } -- levels you always want to be loaded as preview
 ---
 local gamestate = Gamestate.new(level, depth, extra)
+local checks = Gamestate.new(0, 0, { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 }) -- levels on which you wanna run checks
 function love.load()
 	love.keyboard.setKeyRepeat(true)
 end
@@ -51,21 +53,38 @@ function love.draw()
 		love.graphics.translate(104, 0)
 	end
 	local message =
-	"\nUse q/e to go back/forward in time, shift+q/e to go to the beginning/end of a set of inputs and r to hard restart\nUse: ctrl+c/ctrl+v to copy inputs to clipboard\nThe game realods and replays your inputs whenver you update a level file, open up your editor with any levels/[num].lua file on another monitor\nCheck main.lua for level selection\n\ninputs: "
-	local inputs = message
+	{ { 1, 1, 1, 1 },
+		"\nUse q/e to go back/forward in time, shift+q/e to go to the beginning/end of a set of inputs and r to hard restart\nUse: ctrl+c/ctrl+v to copy inputs to clipboard\nThe game realods and replays your inputs whenver you update a level file, open up your editor with any levels/[num].lua file on another monitor\nCheck main.lua for level selection\n\ninputs: " }
 	for i, input in ipairs(gamestate.inputs) do
-		if gamestate.moveCount >= i then
-			inputs = inputs .. input .. " "
+		if gamestate.moveCount == i - 1 then
+			message[#message + 1] = { 1, 1, 1, 0.5 }
+			message[#message + 1] = ""
 		end
-		message = message .. input .. " "
+		message[#message] = message[#message] .. input .. " "
 	end
-	love.graphics.setColor(1, 1, 1, 0.5)
+	if checks then
+		message[#message + 1] = { 1, 1, 1, 1 }
+		local statuses = checks:status()
+		message[#message + 1] = "\n\nChecks:"
+		for _, status in ipairs(statuses) do
+			message[#message + 1] = { 1, 1, 1, 1 }
+			message[#message + 1] = "\nLevel " .. status.id .. ": "
+			if status.state == "running" then
+				message[#message + 1] = { 1, 1, 1, 1 }
+			elseif status.state == "failed" then
+				message[#message + 1] = colors.list["Red"]
+			elseif status.state == "success" then
+				message[#message + 1] = colors.list["Green"]
+			end
+
+			message[#message + 1] = status.state
+		end
+	end
 	local x = 10
 	local y = 600
 	love.graphics.pop()
-	love.graphics.printf(message, x, y, love.graphics.getWidth() - x, "left")
 	love.graphics.setColor(1, 1, 1, 1)
-	love.graphics.printf(inputs, x, y, love.graphics.getWidth() - x, "left")
+	love.graphics.printf(message, x, y, love.graphics.getWidth() - x, "left")
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
@@ -103,5 +122,10 @@ function love.keypressed(key, _, isRepeat)
 		elseif key == "r" then
 			lurker.hotswapfile("main.lua")
 		end
+	end
+	if checks then
+		checks.inputs = gamestate.inputs
+		checks.moveCount = #gamestate.inputs
+		checks:moveToInput(gamestate.moveCount)
 	end
 end
