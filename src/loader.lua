@@ -38,7 +38,7 @@ function loader:parse(code)
 	local entities = {}
 	---@type codes[]
 	local letters = { code:match((code:gsub(".", "(.)"))) }
-	for _, letter in ipairs(letters) do
+	for i, letter in ipairs(letters) do
 		if letter == "g" then
 			tile = "ground"
 		elseif letter == "w" then
@@ -54,7 +54,12 @@ function loader:parse(code)
 		elseif letter == "S" then
 			entities[#entities + 1] = { name = "sensor", data = { triggered = false } }
 		elseif tonumber(letter) then
-			entities[#entities + 1] = { name = "teleporter", data = { link = tonumber(letter) } }
+			if not tonumber(letters[i - 1]) then
+				local next = tonumber(letters[i + 1]) or ""
+				if not tonumber(letters[i - 1]) then
+					entities[#entities + 1] = { name = "teleporter", data = { link = tonumber(letter .. next) } }
+				end
+			end
 		end
 	end
 	return tile, entities

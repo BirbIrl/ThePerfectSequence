@@ -102,6 +102,22 @@ return {
 			end
 		end
 
+		function gamestate:trySolve(gridNum)
+			local oldInputs = bib.shallowCopy(self.inputs)
+			local grid = gamestate.grids[gridNum]
+			---@type directions[][]
+			local toTry = { bib.shallowCopy(oldInputs) }
+			repeat
+				local inputs = toTry[1]
+				local inputCount = #inputs
+				gamestate:reload()
+				for i = 1, inputCount, 1 do
+					local moveVec = bib.dirVec(inputs[i])
+					grid:step(moveVec)
+				end
+			until grid.isBeat or grid.isLost or (inputCount > 100)
+		end
+
 		gamestate:restart(true)
 		return gamestate
 	end
