@@ -31,7 +31,6 @@ return {
 		function entity:removeFromTile()
 			local index = entity:getIndex()
 			if not index then return false end
-			local teleporter = self.tile:findEntities("teleporter")[1]
 			table.remove(self.tile.entities, index)
 			if self.type == "player" then
 				local glass = self.tile:findEntities("glass")[1]
@@ -41,20 +40,6 @@ return {
 			end
 
 			self.tile = nil
-
-			if teleporter then
-				local targetLink = teleporter.data.link
-				if teleporter.data.link % 2 == 0 then
-					targetLink = targetLink - 1
-				else
-					targetLink = targetLink + 1
-				end
-				local linkedTile = teleporter.tile.grid:find("teleporter", { link = targetLink })[1].tile
-				local movableEntity = linkedTile:findEntities("player")[1] or linkedTile:findEntities("box")[1]
-				if movableEntity then
-					movableEntity:moveToTile(teleporter.tile)
-				end
-			end
 
 			return true
 		end
