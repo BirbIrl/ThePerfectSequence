@@ -11,12 +11,6 @@ local bib = require "lib.biblib"
 local colors = require "lib.colors"
 local entity = require "entity"
 local vec = require "lib.vector"
-local sw = love.graphics.getWidth()
-local sh = love.graphics.getHeight()
-local paw = 0 -- sw / 24
-local pah = 0 --sh / 24
-local gaw = sw - paw * 2
-local gah = sh - pah * 2
 --- DEV ZONE ---
 --- levels named [number].lua are loaded from the `./levels/` folder, you can load the chosen one using the number below
 --- the level live-updates when you save it's file, and reloads the game replaying all inputs to reach the same point you're in
@@ -27,6 +21,8 @@ local extra = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 } -- level
 -- levels on which you wanna run checks
 local checks = Gamestate.new(0, 0, { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 })
 function love.load()
+	sw = love.graphics.getWidth()
+	sh = love.graphics.getHeight()
 	gamestate = Gamestate.new(level, depth, extra)
 
 	love.keyboard.setKeyRepeat(true)
