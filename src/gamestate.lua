@@ -107,15 +107,33 @@ return {
 			local grid = gamestate.grids[gridNum]
 			---@type directions[][]
 			local toTry = { bib.shallowCopy(oldInputs) }
-			repeat
+			while toTry[1] do
+				sprint(toTry)
 				local inputs = toTry[1]
 				local inputCount = #inputs
 				gamestate:reload()
+				grid = gamestate.grids[gridNum]
 				for i = 1, inputCount, 1 do
-					local moveVec = bib.dirVec(inputs[i])
-					grid:step(moveVec)
+					local _, moveVec = bib.dirVec(inputs[i])
+					if not grid.isBeat and not grid.isLost then
+						grid:step(moveVec)
+					end
 				end
-			until grid.isBeat or grid.isLost or (inputCount > 100)
+				if grid.isBeat or (inputCount > 100) then
+					break
+				elseif not grid.isLost then
+					for _, dir in ipairs({ "up", "down", "left", "right" }) do
+						toTry[#toTry + 1] = bib.shallowCopy(inputs)
+						toTry[#toTry][#toTry[#toTry] + 1] = dir
+					end
+				end
+				table.remove(toTry, 1)
+			end
+			if grid.isBeat then
+				return toTry[1]
+			else
+				return false
+			end
 		end
 
 		gamestate:restart(true)
