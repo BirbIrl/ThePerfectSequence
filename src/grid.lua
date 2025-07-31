@@ -110,6 +110,15 @@ return {
 					love.graphics.setColor(1, 1, 1, 1)
 				end
 			end
+
+			for _, row in ipairs(self.tiles) do
+				for _, tile in ipairs(row) do
+					local entity = tile:findEntities("box")[1] or tile:findEntities("player")[1]
+					if entity then
+						entity:draw()
+					end
+				end
+			end
 			love.graphics.pop()
 			love.graphics.setCanvas()
 			love.graphics.setBlendMode("alpha", "premultiplied")

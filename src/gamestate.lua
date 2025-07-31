@@ -87,7 +87,7 @@ return {
 		function gamestate:backwards()
 			local inputNum = self.moveCount
 			if inputNum > 0 then
-				self:moveToInput(inputNum - 1, true)
+				self:moveToInput(inputNum - 1)
 				self.moveCount = self.moveCount - 1
 			end
 		end
@@ -95,17 +95,12 @@ return {
 		function gamestate:forward()
 			local inputNum = self.moveCount
 			if inputNum < #self.inputs then
-				self:moveToInput(inputNum + 1)
+				self:moveToInput(inputNum + 1, true)
 				self.moveCount = inputNum + 1
 			end
 		end
 
-		function gamestate:moveToInput(moveCount)
-			gamestate:reload()
-			for i = 1, moveCount, 1 do
-				local moveVec = bib.dirVec(self.inputs[i])
-				self:step(moveVec)
-			end
+		function gamestate:wipeAnims()
 			for _, grid in ipairs(self.grids) do
 				for _, row in ipairs(grid.tiles) do
 					for _, tile in ipairs(row) do
@@ -115,6 +110,19 @@ return {
 					end
 				end
 			end
+		end
+
+		function gamestate:moveToInput(moveCount, keepAnims)
+			gamestate:reload()
+			for i = 1, moveCount, 1 do
+				local moveVec = bib.dirVec(self.inputs[i])
+				if i == moveCount then
+					gamestate:wipeAnims()
+				end
+				self:step(moveVec)
+			end
+			if keepAnims then return true end
+			gamestate:wipeAnims()
 		end
 
 		function gamestate:trySolve(gridNum)

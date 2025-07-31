@@ -44,8 +44,11 @@ return {
 			end
 			love.graphics.rectangle("fill", 16 * (self.pos.x - 1), 16 * (self.pos.y - 1), 16, 16)
 			love.graphics.setColor(1, 1, 1, 1)
+
 			for _, entity in ipairs(self.entities) do
-				entity:draw()
+				if entity.type ~= "box" and entity.type ~= "player" then
+					entity:draw()
+				end
 			end
 		end
 
