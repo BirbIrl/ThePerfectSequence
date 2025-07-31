@@ -11,12 +11,18 @@ local bib = require "lib.biblib"
 local colors = require "lib.colors"
 local entity = require "entity"
 local vec = require "lib.vector"
+local sw = love.graphics.getWidth()
+local sh = love.graphics.getHeight()
+local paw = 0 -- sw / 24
+local pah = 0 --sh / 24
+local gaw = sw - paw * 2
+local gah = sh - pah * 2
 --- DEV ZONE ---
 --- levels named [number].lua are loaded from the `./levels/` folder, you can load the chosen one using the number below
 --- the level live-updates when you save it's file, and reloads the game replaying all inputs to reach the same point you're in
-local level = 2  -- which level to load?
-local depth = 1  -- how many previous levels should this display in parallel? (only 0/1 works well for now)
-local extra = {} -- levels you always want to be loaded as preview
+local level = 0                                                         -- which level to load?
+local depth = 0                                                         -- how many previous levels should this display in parallel? (only 0/1 works well for now)
+local extra = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 } -- levels you always want to be loaded as preview
 ---
 -- levels on which you wanna run checks
 local checks = Gamestate.new(0, 0, { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 })
@@ -55,9 +61,39 @@ end
 ---@diagnostic disable-next-line: duplicate-set-field
 function love.draw()
 	love.graphics.push()
-	for _, grid in ipairs(gamestate.grids) do
-		grid:draw()
-		love.graphics.translate(104, 0)
+	local gridCount = #gamestate.grids
+	local scale
+	local wrap
+	local lines
+	if gridCount == 1 then
+		scale = 3
+		wrap = 1
+		lines = 1
+	elseif gridCount < 3 then
+		scale = 3
+		wrap = 2
+		lines = 1
+	elseif gridCount < 7 then
+		scale = 2
+		wrap = 3
+		lines = 2
+	elseif gridCount < 10 then
+		scale = 1.5
+		wrap = 3
+		lines = 3
+	else
+		scale = 1
+		wrap = 4
+		lines = 4
+	end
+	local grids = gamestate.grids
+	local gridSize = grids[1].size
+	local paddingW = (sw - (wrap) * gridSize * scale - scale * gridSize / 9) / 2
+	local paddingH = (sh - (lines) * gridSize * scale - scale * gridSize / 9) / 2
+	for i, grid in ipairs(grids) do
+		grid:draw(((i - 1) % wrap) * gridSize * scale + paddingW,
+			(math.floor((i - 1) / wrap)) * gridSize * scale + paddingH,
+			scale)
 	end
 	local message =
 	{ { 1, 1, 1, 1 },
@@ -88,7 +124,7 @@ function love.draw()
 		end
 	end
 	local x = 10
-	local y = 600
+	local y = 10 + sh
 	love.graphics.pop()
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.printf(message, x, y, love.graphics.getWidth() - x, "left")

@@ -8,6 +8,7 @@ return {
 			---@type Tile.lua[][]
 			tiles = {},
 			pos = vec.new(0, 0),
+			size = 144,
 			canvas = love.graphics.newCanvas(),
 			isBeat = false,
 			isLost = false,
@@ -84,10 +85,10 @@ return {
 			return hits
 		end
 
-		function grid:draw()
+		function grid:draw(x, y, scale)
 			love.graphics.setCanvas(self.canvas)
 			love.graphics.push()
-			love.graphics.translate(5, 5)
+			love.graphics.translate(16, 16)
 			love.graphics.clear()
 			love.graphics.setLineWidth(1)
 			for x, row in ipairs(self.tiles) do
@@ -112,7 +113,9 @@ return {
 			else
 				love.graphics.setColor(1, 1, 1, 1)
 			end
-			love.graphics.draw(self.canvas, self.pos.x, self.pos.y, 0, 4, 4)
+			love.graphics.draw(self.canvas, x + self.pos.x, y +
+				self.pos.y, 0, scale,
+				scale)
 			love.graphics.setBlendMode("alpha")
 		end
 
