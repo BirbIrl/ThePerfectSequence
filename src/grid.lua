@@ -59,10 +59,8 @@ return {
 		---@param movement Vector.lua
 		function grid:step(movement)
 			---@type Entity.lua
-			local players = grid:find("player")
-			for _, player in ipairs(players) do
-				player:move(movement)
-			end
+			local player = grid:find("player")[1]
+			player:move(movement)
 			grid:checkWin()
 			grid:checkLoss()
 			return "step"
