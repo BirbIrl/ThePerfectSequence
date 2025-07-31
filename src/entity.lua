@@ -50,7 +50,7 @@ return {
 				if not targetTile or targetTile.type == "void" and not targetTile:findEntities("glass")[1] then
 					self:removeFromTile()
 					return false
-				elseif targetTile.type == "wall" then
+				elseif targetTile.type == "wall" or (self.type == "box" and targetTile:findEntities("box")[1]) then
 					return true
 				end
 				local box = targetTile:findEntities("box")[1]
