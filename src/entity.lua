@@ -67,7 +67,7 @@ return {
 						targetLink = targetLink + 1
 					end
 					local teleportTile = self.tile.grid:find("teleporter", { link = targetLink })[1].tile
-					if not teleportTile:findEntities("box")[1] then
+					if not teleportTile:findEntities("box")[1] and not teleportTile:findEntities("player")[1] then
 						targetTile = teleportTile
 					end
 				end

@@ -2,19 +2,25 @@
 local vec = require("lib.vector")
 local biblib = {
 	---@param direction directions
+	---@return "up"|"down"|"left"|"right"
 	---@return Vector.lua
 	dirVec = function(direction)
+		local name
 		local vector
 		if direction == "up" or direction == "w" then
+			name = "up"
 			vector = vec.new(0, -1)
 		elseif direction == "down" or direction == "s" then
+			name = "down"
 			vector = vec.new(0, 1)
 		elseif direction == "left" or direction == "a" then
+			name = "left"
 			vector = vec.new(-1, 0)
 		elseif direction == "right" or direction == "d" then
+			name = "right"
 			vector = vec.new(1, 0)
 		end
-		return vector
+		return name, vector
 	end,
 	getTableKeys = function(t, includeMeta)
 		local keys = {}
