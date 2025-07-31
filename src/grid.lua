@@ -38,6 +38,11 @@ return {
 					return false
 				end
 			end
+			for _, sensor in ipairs(self:find("sensor")) do
+				if not sensor.data.triggered then
+					return false
+				end
+			end
 			self.isBeat = true
 			return true
 		end

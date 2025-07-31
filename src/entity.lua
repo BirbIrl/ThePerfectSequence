@@ -1,4 +1,4 @@
----@alias entityTypes "player"|"box"|"glass"|"teleporter"|"exit"
+---@alias entityTypes "player"|"box"|"glass"|"teleporter"|"exit"|"sensor"
 local colors = require "lib.colors"
 local vec = require "lib.vector"
 return {
@@ -71,6 +71,10 @@ return {
 						targetTile = teleportTile
 					end
 				end
+				local sensor = targetTile:findEntities("sensor", { triggered = false })[1]
+				if sensor then
+					sensor.data.triggered = true
+				end
 			end
 			self:removeFromTile()
 			table.insert(targetTile.entities, self)
@@ -89,6 +93,12 @@ return {
 				love.graphics.setColor(colors.list["Plum Purple"])
 			elseif self.type == "exit" then
 				love.graphics.setColor(colors.list["Blue"])
+			elseif self.type == "sensor" then
+				if self.data.triggered then
+					love.graphics.setColor(colors.list["Banana Yellow"])
+				else
+					love.graphics.setColor(colors.list["Yellow Brown"])
+				end
 			end
 			love.graphics.rectangle("fill", 16 * (self.tile.pos.x - 1) + 1, 16 * (self.tile.pos.y - 1) + 1, 16 - 2, 16 -
 				2)
