@@ -75,4 +75,8 @@ function biblib.equals(a, b)
 	return true
 end
 
+function biblib.sign(number)
+	return number > 0 and 1 or (number == 0 and 0 or -1)
+end
+
 return biblib

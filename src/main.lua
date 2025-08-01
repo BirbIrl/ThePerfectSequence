@@ -22,7 +22,7 @@ local extra = { 15, 16 } -- levels you always want to be loaded as preview
 --local extra = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 } -- millions must load
 ---
 -- levels on which you wanna run checks
-local checks = Gamestate.new(0, 0, { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 })
+--local checks = Gamestate.new(0, 0, { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 })
 function love.load()
 	sw = love.graphics.getWidth()
 	sh = love.graphics.getHeight()
@@ -46,6 +46,7 @@ function love.update(dt)
 	lurker.update()
 	gamestate:update(dt)
 	timer = timer + dt
+	keyPreview:update(gamestate, dt)
 	--print(timer)
 end
 
@@ -100,14 +101,7 @@ function love.draw()
 	end
 	local message =
 	{ { 1, 1, 1, 1 }, "FPS: " .. love.timer.getFPS() ..
-	"\nUse q/e to go back/forward in time, shift+q/e to go to the beginning/end of a set of inputs and r to hard restart\nUse: ctrl+c/ctrl+v to copy inputs to clipboard\nThe game reloads and replays your inputs whenver you update a level file, open up your editor with any levels/[num].lua file on another monitor\nCheck main.lua for level selection\n\ninputs: " }
-	for i, input in ipairs(gamestate.inputs) do
-		if gamestate.moveCount == i - 1 then
-			message[#message + 1] = { 1, 1, 1, 0.5 }
-			message[#message + 1] = ""
-		end
-		message[#message] = message[#message] .. input .. " "
-	end
+	"\nUse q/e to go back/forward in time, shift+q/e to go to the beginning/end of a set of inputs and r to hard restart\nUse: ctrl+c/ctrl+v to copy inputs to clipboard\nThe game reloads and replays your inputs whenver you update a level file, open up your editor with any levels/[num].lua file on another monitor\nCheck main.lua for level selection" }
 	if checks then
 		message[#message + 1] = { 1, 1, 1, 1 }
 		local statuses = checks:status()
@@ -128,10 +122,11 @@ function love.draw()
 	end
 	local x = 10
 	local y = 10 + sh
+	love.graphics.setBlendMode("alpha")
 	keyPreview:draw(gamestate)
 	love.graphics.setColor(1, 1, 1, 1)
-	love.graphics.printf(message, x, y, love.graphics.getWidth() - x, "left")
 	love.graphics.draw(sprites.ui.frame, 0, 0)
+	love.graphics.printf(message, x, y, love.graphics.getWidth() - x, "left")
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
