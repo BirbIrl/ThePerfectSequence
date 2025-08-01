@@ -41,7 +41,7 @@ function love.update(dt)
 		end
 	end
 	--lurker.update()
-	gamestate:update(dt * 2)
+	gamestate:update(dt)
 	timer = timer + dt
 	--print(timer)
 end
