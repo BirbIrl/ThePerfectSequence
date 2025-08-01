@@ -68,16 +68,36 @@ return {
 					end
 				end
 			end
-			if moved and record then
-				self.moveCount = self.moveCount + 1
-				if self.inputs[self.moveCount] ~= directionName then
-					for index, _ in ipairs(self.inputs) do
-						if index > self.moveCount then
-							self.inputs[index] = nil
+			if moved then
+				if record then
+					self.moveCount = self.moveCount + 1
+					if self.inputs[self.moveCount] ~= directionName then
+						for index, _ in ipairs(self.inputs) do
+							if index > self.moveCount then
+								self.inputs[index] = nil
+							end
 						end
 					end
+					self.inputs[self.moveCount] = directionName
 				end
-				self.inputs[self.moveCount] = directionName
+			end
+			if self.level > 0 then
+				for i = 1, self.depth + 1, 1 do
+					local status = gamestate:status()[i]
+					print(#self.grids)
+					print(self.level, i)
+					sprint(status)
+					if not (status and status.state == "success") then
+						return false
+					end
+				end
+				if self.level == 1 then
+					self.depth = 1
+				end
+				self.level = self.level + 1
+				gamestate:reload()
+				self.moveCount = 0
+				gamestate:moveToInput(self.moveCount)
 			end
 		end
 
@@ -148,6 +168,7 @@ return {
 			gamestate:wipeAnims()
 		end
 
+		--not used, you shouldn't use this either
 		function gamestate:trySolve(gridNum)
 			local oldInputs = bib.shallowCopy(self.inputs)
 			local grid = gamestate.grids[gridNum]
