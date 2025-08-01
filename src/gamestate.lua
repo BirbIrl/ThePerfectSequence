@@ -47,12 +47,13 @@ return {
 			end
 		end
 
+		---@param directionName directions
+		---@param record boolean
 		function gamestate:step(directionName, record)
-			local _, moveVec = bib.dirVec(directionName)
 			local moved = false
 			for _, grid in ipairs(self.grids) do
 				if not grid.isBeat and not grid.isLost then
-					grid:step(moveVec)
+					grid:step(directionName)
 					moved = true
 				end
 			end

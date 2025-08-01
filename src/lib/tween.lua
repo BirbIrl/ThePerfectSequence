@@ -345,6 +345,7 @@ end
 
 -- Tween methods
 
+---@class Tween.lua
 local Tween = {}
 local Tween_mt = { __index = Tween }
 
@@ -365,6 +366,10 @@ function Tween:set(clock)
 	end
 
 	return self.clock >= self.duration
+end
+
+function Tween:get()
+	return self.subject
 end
 
 function Tween:reset()

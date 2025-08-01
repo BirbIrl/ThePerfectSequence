@@ -1,5 +1,7 @@
 local tile = require "tile"
 local vec = require "lib.vector"
+local bib = require "lib.biblib"
+local sprites = require "sprites"
 return {
 	---@param preset Level.lua
 	new = function(id)
@@ -56,11 +58,13 @@ return {
 			return true
 		end
 
-		---@param movement Vector.lua
-		function grid:step(movement)
+		---@param directionName directions
+		function grid:step(directionName)
 			---@type Entity.lua
 			local player = grid:find("player")[1]
-			player:move(movement)
+			local _, moveVec = bib.dirVec(directionName)
+			player:move(moveVec)
+			player.data.eyes = sprites.player[directionName]
 			grid:checkWin()
 			grid:checkLoss()
 			return "step"

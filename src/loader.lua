@@ -13,6 +13,7 @@ local vec = require "lib.vector"
 local Entity = require "entity"
 local serpent = require "lib.serpent"
 local Grid = require("grid")
+local sprites = require "sprites"
 ---@class Loader.lua
 local loader = {}
 loader.levelData = {}
@@ -44,7 +45,7 @@ function loader:parse(code)
 		elseif letter == "w" then
 			tile = "wall"
 		elseif letter == "P" then
-			entities[#entities + 1] = { name = "player" }
+			entities[#entities + 1] = { name = "player", data = { eyes = sprites.player.idle } }
 		elseif letter == "B" then
 			entities[#entities + 1] = { name = "box" }
 		elseif letter == "G" then

@@ -17,6 +17,7 @@ local vec = require "lib.vector"
 local level = 0          -- which level to load?
 local depth = 0          -- how many previous levels should this display in parallel? (only 0/1 works well for now)
 local extra = { 15, 16 } -- levels you always want to be loaded as preview
+--local extra = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 } -- millions must load
 ---
 -- levels on which you wanna run checks
 local checks = Gamestate.new(0, 0, { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 })
@@ -42,7 +43,7 @@ function love.update(dt)
 	lurker.update()
 	gamestate:update(dt)
 	timer = timer + dt
-	print(timer)
+	--print(timer)
 end
 
 function lurker.postswap(file)
