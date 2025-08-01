@@ -46,7 +46,7 @@ function preview:draw(gamestate)
 		love.graphics.setColor(1, 1, 1, 1)
 		local drift = preview:getDrift(i)
 		local x = (i - 1.25 - self.pos + drift.x) * 19 * scale + width / 2
-		local y = 514 - (16 * scale) + drift.y * 19 * scale
+		local y = 500 - (16 * scale) + drift.y * 19 * scale
 		love.graphics.setCanvas(self.keyvas)
 		love.graphics.clear()
 		love.graphics.draw(sprites.ui.key.body, 16, 16)
