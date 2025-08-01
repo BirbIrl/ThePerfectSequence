@@ -11,5 +11,8 @@ return {
 		down = l(p .. "down.png"),
 		back = l(p .. "back.png"),
 		forward = l(p .. "forward.png"),
+	},
+	ui = {
+		frame = l(s .. "frame.png")
 	}
 }

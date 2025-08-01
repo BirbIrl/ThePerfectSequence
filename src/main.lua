@@ -9,6 +9,7 @@ Loader = require "loader"
 local Gamestate = require("gamestate")
 local bib = require "lib.biblib"
 local colors = require "lib.colors"
+local sprites = require "sprites"
 local entity = require "entity"
 local vec = require "lib.vector"
 --- DEV ZONE ---
@@ -90,7 +91,7 @@ function love.draw()
 	local grids = gamestate.grids
 	local gridSize = grids[1].size
 	local paddingW = (sw - (wrap) * gridSize * scale - scale * gridSize / 9) / 2
-	local paddingH = (sh - (lines) * gridSize * scale - scale * gridSize / 9) / 2
+	local paddingH = (sh - (lines) * gridSize * scale - scale * gridSize / 9) / 16
 	for i, grid in ipairs(grids) do
 		grid:draw(((i - 1) % wrap) * gridSize * scale + paddingW,
 			(math.floor((i - 1) / wrap)) * gridSize * scale + paddingH,
@@ -125,10 +126,11 @@ function love.draw()
 		end
 	end
 	local x = 10
-	local y = 10 + sh - 90
+	local y = 10 + sh
 	love.graphics.pop()
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.printf(message, x, y, love.graphics.getWidth() - x, "left")
+	love.graphics.draw(sprites.ui.frame, 0, 0)
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
