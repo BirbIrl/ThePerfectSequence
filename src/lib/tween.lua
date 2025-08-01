@@ -4,7 +4,7 @@ local tween = {
 	_URL         = 'https://github.com/kikito/tween.lua',
 	_LICENSE     = [[
     MIT LICENSE
-
+	tweaked by birbirl, added showTime, hideTime and :get(), changes tracked by the birbirl/ThePerfectSequence github repository
     Copyright (c) 2014 Enrique García Cota, Yuichi Tateno, Emmanuel Oga
 
     Permission is hereby granted, free of charge, to any person obtaining a
@@ -351,21 +351,20 @@ local Tween_mt = { __index = Tween }
 
 function Tween:set(clock)
 	assert(type(clock) == 'number', "clock must be a positive number or 0")
-
 	self.initial = self.initial or copyTables({}, self.target, self.subject)
 	self.clock = clock
 
 	if self.clock <= 0 then
 		self.clock = 0
 		copyTables(self.subject, self.initial)
-	elseif self.clock >= self.duration then -- the tween has expired
+	elseif self.clock >= self.duration or self.clock >= self.hideTime then -- the tween has expired
 		self.clock = self.duration
 		copyTables(self.subject, self.target)
-	else
+	elseif self.clock > self.showTime then
 		performEasingOnSubject(self.subject, self.target, self.initial, self.clock, self.duration, self.easing)
 	end
 
-	return self.clock >= self.duration
+	return self.clock >= self.duration or self.clock >= self.hideTime
 end
 
 function Tween:get()
@@ -378,12 +377,15 @@ end
 
 function Tween:update(dt)
 	assert(type(dt) == 'number', "dt must be a number")
-	return self:set(self.clock + dt)
+	self.finished = self:set(self.clock + dt)
+	return self.finished
 end
 
 -- Public interface
 
-function tween.new(duration, subject, target, easing)
+function tween.new(duration, subject, target, easing, showTime, hideTime)
+	showTime = showTime or 0
+	hideTime = hideTime or duration
 	easing = getEasingFunction(easing)
 	checkNewParams(duration, subject, target, easing)
 	return setmetatable({
@@ -391,6 +393,9 @@ function tween.new(duration, subject, target, easing)
 		subject  = subject,
 		target   = target,
 		easing   = easing,
+		showTime = showTime,
+		hideTime = hideTime,
+		fnished  = false,
 		clock    = 0
 	}, Tween_mt)
 end

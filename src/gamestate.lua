@@ -1,5 +1,6 @@
 local Grid = require "grid"
 local bib = require "lib.biblib"
+local sprites = require "sprites"
 return {
 	---@param level integer
 	---@param depth integer
@@ -85,11 +86,21 @@ return {
 			return statuses
 		end
 
+		function gamestate:setPlayerFace(face)
+			for _, grid in ipairs(self.grids) do
+				local player = grid:find("player")[1]
+				if player then
+					player.data.eyes = face
+				end
+			end
+		end
+
 		function gamestate:backwards()
 			local inputNum = self.moveCount
 			if inputNum > 0 then
 				self:moveToInput(inputNum - 1)
 				self.moveCount = self.moveCount - 1
+				self:setPlayerFace(sprites.player.back)
 			end
 		end
 
@@ -98,6 +109,7 @@ return {
 			if inputNum < #self.inputs then
 				self:moveToInput(inputNum + 1, true)
 				self.moveCount = inputNum + 1
+				self:setPlayerFace(sprites.player.forward)
 			end
 		end
 
@@ -106,7 +118,7 @@ return {
 				for _, row in ipairs(grid.tiles) do
 					for _, tile in ipairs(row) do
 						for _, entity in ipairs(tile.entities) do
-							entity.anim = nil
+							entity.anims = {}
 						end
 					end
 				end

@@ -16,8 +16,8 @@ return {
 			---@type entityTypes
 			type = type,
 			data = data,
-			---@type Tween.lua
-			anim = nil
+			---@type Tween.lua[]
+			anims = {}
 		}
 
 
@@ -57,6 +57,7 @@ return {
 
 		---@param targetTile? Tile.lua
 		function entity:moveToTile(targetTile, force)
+			local anims
 			if self.type ~= "glass" then
 				if not targetTile or targetTile.type == "void" and not targetTile:findEntities("glass")[1] then
 					self:removeFromTile()
@@ -69,13 +70,13 @@ return {
 					box:move(box.tile.pos - self.tile.pos)
 					return true
 				end
-				local easing = "outQuad"
+				local easing = "outCubic"
 				if self.type == "player" then
 					easing = "outBack"
 				end
-				self.anim = tween.new(0.15, { type = "shift", offset = self.tile.pos:clone() },
-					{ offset = targetTile.pos },
-					easing)
+				anims = { tween.new(0.15,
+					{ type = "shift", offset = self.tile.pos - targetTile.pos },
+					{ offset = vec.new(0, 0) }, easing) }
 				local teleporter = targetTile:findEntities("teleporter")[1]
 				if teleporter then
 					local targetLink = teleporter.data.link
@@ -86,13 +87,26 @@ return {
 					end
 					local teleportTile = self.tile.grid:find("teleporter", { link = targetLink })[1].tile
 					if not teleportTile:findEntities("box")[1] and not teleportTile:findEntities("player")[1] then
+						anims = {
+							tween.new(0.25, { type = "shift", offset = targetTile.pos - teleportTile.pos },
+								{ offset = 2 * targetTile.pos - teleportTile.pos - self.tile.pos }, easing, 0, 0.10),
+							tween.new(0.25, { type = "shift", offset = -(targetTile.pos - self.tile.pos) },
+								{ offset = vec.new(0, 0) }, easing, 0.10, 0.25)
+						}
 						self:triggerIce(targetTile)
 						targetTile = teleportTile
 					end
 				end
+
 				local sensor = targetTile:findEntities("sensor", { triggered = false })[1]
 				if sensor then
 					sensor.data.triggered = true
+				end
+			end
+			if anims then
+				local animCount = #self.anims
+				for i, anim in ipairs(anims) do
+					self.anims[animCount + i] = anim
 				end
 			end
 			self:removeFromTile()
@@ -102,21 +116,32 @@ return {
 		end
 
 		function entity:update(dt)
-			if self.anim and self.anim:update(dt) then
-				self.anim = nil
+			for _, anim in ipairs(self.anims) do
+				anim:update(dt)
 			end
 		end
 
 		function entity:draw()
 			local pos = self.tile.pos
-			if self.anim and self.anim:get().type == "shift" then
-				--pos = bib.lerp(self.anim.from, self.anim.to, self.anim.t / self.anim.duration)
-				pos = self.anim:get().offset
-				--tween
+			for i, anim in ipairs(self.anims) do
+				if anim.finished then
+					table.remove(self.anims, i)
+				end
 			end
+			for _, anim in ipairs(self.anims) do
+				if anim:get().type == "shift" then
+					--pos = bib.lerp(self.anim.from, self.anim.to, self.anim.t / self.anim.duration)
+					---@type Vector.lua
+					pos = pos + anim:get().offset
+					--tween
+				end
+			end
+			pos = (pos - vec.new(1, 1)) * 16
+			pos.x = math.floor(pos.x)
+			pos.y = math.floor(pos.y)
 			local image = nil
 			if self.type == "player" then
-				love.graphics.draw(sprites.player.body, 16 * (pos.x - 1), 16 * (pos.y - 1))
+				love.graphics.draw(sprites.player.body, pos.x, pos.y)
 				image = self.data.eyes
 				debug = false
 			elseif self.type == "box" then
@@ -135,9 +160,9 @@ return {
 				end
 			end
 			if image then
-				love.graphics.draw(image, 16 * (pos.x - 1), 16 * (pos.y - 1))
+				love.graphics.draw(image, pos.x, pos.y)
 			else
-				love.graphics.rectangle("fill", 16 * (pos.x - 1) + 1, 16 * (pos.y - 1) + 1, 16 - 2, 16 -
+				love.graphics.rectangle("fill", pos.x + 1, pos.y + 1, 16 - 2, 16 -
 					2)
 			end
 			love.graphics.setColor(1, 1, 1, 1)

@@ -71,7 +71,7 @@ return {
 		end
 
 		---@param type tileTypes|entityTypes
-		---@param data table
+		---@param data? table
 		---@return (Tile.lua|Entity.lua)[]
 		function grid:find(type, data)
 			local hits = {}

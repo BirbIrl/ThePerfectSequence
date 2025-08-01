@@ -40,8 +40,8 @@ function love.update(dt)
 			keyCooldown = 0
 		end
 	end
-	lurker.update()
-	gamestate:update(dt)
+	--lurker.update()
+	gamestate:update(dt * 2)
 	timer = timer + dt
 	--print(timer)
 end
