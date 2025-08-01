@@ -19,10 +19,10 @@ local keyPreview = require "keyPreview"
 local level = 2  -- which level to load?
 local depth = 1  -- how many previous levels should this display in parallel? (only 0/1 works well for now)
 local extra = {} -- levels you always want to be loaded as preview
---local extra = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 } -- millions must load
+--local extra = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } -- millions must load
 ---
 -- levels on which you wanna run checks
---local checks = Gamestate.new(0, 0, { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 })
+--local checks = Gamestate.new(0, 0, { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 })
 
 local chroma = love.graphics.newShader("assets/shaders/chroma.vert")
 chroma:send("elapsed", love.timer.getTime())
