@@ -1,6 +1,7 @@
 ---@alias tileTypes "void"|"ground"|"wall"
 local colors = require "lib.colors"
 local bib = require "lib.biblib"
+local sprites = require "sprites"
 return {
 	---@param grid Grid.lua
 	---@return Tile.lua
@@ -37,15 +38,29 @@ return {
 		end
 
 		function tile:draw()
+			love.math.setRandomSeed(pos.x * 1000, pos.y)
+			local image
+			local r = 0
+			local pos = self.pos * 16
 			if self.type == "void" then
 				love.graphics.setColor(0, 0, 0, 0)
 			elseif self.type == "ground" then
-				love.graphics.setColor(1, 1, 1, 0.5)
+				image = sprites.ground
+				r = math.rad(love.math.random(0, 4) * 90)
 			elseif self.type == "wall" then
 				love.graphics.setColor(colors.list["Brown Red"])
 			end
-			love.graphics.rectangle("fill", 16 * (self.pos.x), 16 * (self.pos.y), 16, 16)
+			love.graphics.push()
+			love.graphics.translate(pos.x + 8, pos.y + 8)
+			love.graphics.rotate(r)
+			love.graphics.translate(-(pos.x + 8), -(pos.y + 8))
+			if image then
+				love.graphics.draw(image, pos.x, pos.y)
+			else
+				love.graphics.rectangle("fill", pos.x, pos.y, 16, 16)
+			end
 			love.graphics.setColor(1, 1, 1, 1)
+			love.graphics.pop()
 
 			for _, entity in ipairs(self.entities) do
 				if entity.type ~= "box" and entity.type ~= "player" then

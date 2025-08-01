@@ -23,10 +23,16 @@ local extra = { 15, 16 } -- levels you always want to be loaded as preview
 ---
 -- levels on which you wanna run checks
 --local checks = Gamestate.new(0, 0, { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 })
+
+local chroma = love.graphics.newShader("assets/shaders/chroma.vert")
+chroma:send("elapsed", love.timer.getTime())
+local scan = love.graphics.newShader("assets/shaders/scan.vert")
 function love.load()
 	sw = love.graphics.getWidth()
 	sh = love.graphics.getHeight()
 	gamestate = Gamestate.new(level, depth, extra)
+	mainCanvas = love.graphics.newCanvas(sw, sh)
+	bounceCanvas = love.graphics.newCanvas(sw, sh)
 
 	love.graphics.setDefaultFilter("nearest", "nearest")
 	love.keyboard.setKeyRepeat(true)
@@ -47,6 +53,8 @@ function love.update(dt)
 	gamestate:update(dt)
 	timer = timer + dt
 	keyPreview:update(gamestate, dt)
+	chroma:send("elapsed", love.timer.getTime())
+	scan:send("phase", love.timer.getTime())
 	--print(timer)
 end
 
@@ -65,6 +73,14 @@ end
 
 ---@diagnostic disable-next-line: duplicate-set-field
 function love.draw()
+	love.graphics.setCanvas(bounceCanvas)
+	love.graphics.setBlendMode("alpha")
+	love.graphics.setColor(18 / 256, 32 / 256, 32 / 256)
+	love.graphics.rectangle("fill", 0, 0, sw, sh)
+	love.graphics.setCanvas(mainCanvas)
+	love.graphics.clear()
+	love.graphics.setColor(1, 1, 1, 1)
+	love.graphics.draw(bounceCanvas, 0, 0)
 	local gridCount = #gamestate.grids
 	local scale
 	local wrap
@@ -125,8 +141,19 @@ function love.draw()
 	love.graphics.setBlendMode("alpha")
 	keyPreview:draw(gamestate)
 	love.graphics.setColor(1, 1, 1, 1)
-	love.graphics.draw(sprites.ui.frame, 0, 0)
 	love.graphics.printf(message, x, y, love.graphics.getWidth() - x, "left")
+	love.graphics.setCanvas(bounceCanvas)
+	love.graphics.setBlendMode("alpha", "premultiplied")
+	love.graphics.setShader(chroma)
+	love.graphics.draw(mainCanvas)
+	love.graphics.setCanvas()
+	love.graphics.setShader(scan)
+	love.graphics.draw(bounceCanvas)
+	chroma:send("alphaStuff", true)
+	love.graphics.setShader(chroma)
+	love.graphics.draw(sprites.ui.frame, 0, 0)
+	chroma:send("alphaStuff", false)
+	love.graphics.setShader()
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field

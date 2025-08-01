@@ -112,11 +112,6 @@ return {
 			for x, row in ipairs(self.tiles) do
 				for y, tile in ipairs(row) do
 					tile:draw()
-					--outline
-					love.graphics.setColor(1, 1, 1, 0.1)
-					if tile.type ~= "wall" and tile.type ~= "void" then
-						love.graphics.rectangle("line", 16 * (x) + 1, 16 * (y) + 1, 16 - 2, 16 - 2)
-					end
 					love.graphics.setColor(1, 1, 1, 1)
 				end
 			end
@@ -130,14 +125,14 @@ return {
 				end
 			end
 			love.graphics.pop()
-			love.graphics.setCanvas()
+			love.graphics.setCanvas(mainCanvas)
 			love.graphics.setBlendMode("alpha", "premultiplied")
 
 			if grid.isBeat then
-				love.graphics.setColor(0.75, 1, 0.75, 0.5)
+				love.graphics.setColor(0.9, 1, 0.9, 1)
 			elseif self.beenDead > 0 then
 				local fade = 1 - self.beenDead / 4
-				love.graphics.setColor(fade, fade, fade, 1)
+				love.graphics.setColor(fade, fade, fade, fade)
 			else
 				love.graphics.setColor(1, 1, 1, 1)
 			end

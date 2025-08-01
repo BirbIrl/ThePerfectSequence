@@ -176,9 +176,7 @@ return {
 				end
 			end
 			local image = nil
-			if self.type == "box" then
-				love.graphics.setColor(colors.list["Orange Brown"])
-			elseif self.type == "glass" then
+			if self.type == "glass" then
 				love.graphics.setColor(colors.blend(colors.list["Sky Blue"], { nil, nil, nil, 0.2 }, 1))
 			elseif self.type == "teleporter" then
 				love.graphics.setColor(colors.list["Plum Purple"])
@@ -204,6 +202,8 @@ return {
 			if self.type == "player" then
 				love.graphics.draw(sprites.player.body, pos.x, pos.y)
 				image = self.data.eyes
+			elseif self.type == "box" then
+				image = sprites.box
 			end
 			if image then
 				love.graphics.draw(image, pos.x, pos.y)

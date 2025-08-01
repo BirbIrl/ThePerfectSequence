@@ -22,5 +22,7 @@ return {
 			up = l(k .. "up.png"),
 			down = l(k .. "down.png"),
 		}
-	}
+	},
+	box = l(s .. "box.png"),
+	ground = l(s .. "ground.png"),
 }
