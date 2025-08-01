@@ -29,9 +29,9 @@ return {
 			return grid.tiles[pos.x][pos.y]
 		end
 
-		for x = 1, 8, 1 do
+		for x = 1, 10, 1 do
 			grid.tiles[x] = {}
-			for y = 1, 8, 1 do
+			for y = 1, 10, 1 do
 				grid:setTile(vec.new(x, y), "void")
 			end
 		end
@@ -100,7 +100,7 @@ return {
 		function grid:draw(x, y, scale)
 			love.graphics.setCanvas(self.canvas)
 			love.graphics.push()
-			love.graphics.translate(16, 16)
+			love.graphics.translate(-16, -16)
 			love.graphics.clear()
 			love.graphics.setLineWidth(1)
 			for x, row in ipairs(self.tiles) do
@@ -108,8 +108,8 @@ return {
 					tile:draw()
 					--outline
 					love.graphics.setColor(1, 1, 1, 0.1)
-					if tile.type ~= "wall" then
-						love.graphics.rectangle("line", 16 * (x - 1) + 1, 16 * (y - 1) + 1, 16 - 2, 16 - 2)
+					if tile.type ~= "wall" and tile.type ~= "void" then
+						love.graphics.rectangle("line", 16 * (x) + 1, 16 * (y) + 1, 16 - 2, 16 - 2)
 					end
 					love.graphics.setColor(1, 1, 1, 1)
 				end

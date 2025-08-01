@@ -42,7 +42,7 @@ return {
 			elseif self.type == "wall" then
 				love.graphics.setColor(colors.list["Brown Red"])
 			end
-			love.graphics.rectangle("fill", 16 * (self.pos.x - 1), 16 * (self.pos.y - 1), 16, 16)
+			love.graphics.rectangle("fill", 16 * (self.pos.x), 16 * (self.pos.y), 16, 16)
 			love.graphics.setColor(1, 1, 1, 1)
 
 			for _, entity in ipairs(self.entities) do

@@ -16,6 +16,7 @@ return {
 			---@type entityTypes
 			type = type,
 			data = data,
+			destroyed = false,
 			---@type Tween.lua[]
 			anims = {}
 		}
@@ -55,11 +56,11 @@ return {
 			return true
 		end
 
-		---@param targetTile? Tile.lua
+		---@param targetTile Tile.lua
 		function entity:moveToTile(targetTile, force)
 			local anims
 			if self.type ~= "glass" then
-				if not targetTile or targetTile.type == "void" and not targetTile:findEntities("glass")[1] then
+				if targetTile.type == "void" and not targetTile:findEntities("glass")[1] then
 					self:removeFromTile()
 					return false
 				elseif targetTile.type == "wall" or (self.type == "box" and targetTile:findEntities("box")[1]) then
@@ -136,7 +137,7 @@ return {
 					--tween
 				end
 			end
-			pos = (pos - vec.new(1, 1)) * 16
+			pos = pos * 16
 			pos.x = math.floor(pos.x)
 			pos.y = math.floor(pos.y)
 			local image = nil

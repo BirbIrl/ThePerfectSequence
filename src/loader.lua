@@ -75,7 +75,7 @@ function loader:load(index)
 	end
 	for y, row in ipairs(self.levelData[index]) do
 		for x, code in ipairs(row) do
-			local pos = vec.new(x, y)
+			local pos = vec.new(x + 1, y + 1)
 			local tileType, entityTypes = self:parse(code)
 			grid:setTile(pos, tileType)
 			for _, entityType in ipairs(entityTypes) do
