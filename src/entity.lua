@@ -27,6 +27,18 @@ return {
 			entity:moveToTile(self.tile.grid:getTile(self.tile.pos + movement))
 		end
 
+		function entity:destroy(duration)
+			self.destroyed = true
+			self.anims[#self.anims + 1] = tween.new(duration,
+				{ type = "opacity", amount = 1 }, { amount = 0 }, "outCubic")
+			local scaleAmount = 0.5
+			if self.type == "glass" then
+				scaleAmount = 0.9
+			end
+			self.anims[#self.anims + 1] = tween.new(duration,
+				{ type = "scale", amount = 1 }, { amount = scaleAmount }, "outCubic")
+		end
+
 		function entity:getIndex()
 			for i, ent in ipairs(self.tile.entities) do
 				if ent == self then return i end
@@ -38,9 +50,8 @@ return {
 			if self.type == "player" then
 				local glass = tile:findEntities("glass")[1]
 				if glass then
-					local entities = glass.tile.entities
-					while entities[1] do
-						entities[1]:removeFromTile()
+					for _, ent in ipairs(glass.tile.entities) do
+						ent:destroy(0.5)
 					end
 				end
 			end
@@ -56,26 +67,42 @@ return {
 			return true
 		end
 
+		function entity:bump(targetVec)
+			local distance = targetVec / 4
+			local animDuration = 0.08
+			self.anims[#self.anims + 1] = tween.new(animDuration,
+				{ type = "shift", offset = vec.new(0, 0) },
+				{ offset = -distance:clone() }, "inQuint")
+			self.anims[#self.anims + 1] =
+				tween.new(animDuration * 1.5,
+					{ type = "shift", offset = -distance:clone() },
+					{ offset = vec.new(0, 0) }, "outQuad", nil, nil, -animDuration)
+		end
+
 		---@param targetTile Tile.lua
 		function entity:moveToTile(targetTile, force)
 			local anims
 			if self.type ~= "glass" then
+				local animDuration = 0.15
+				local easing = "outCubic"
+				if self.type == "player" then
+					easing = "outBack"
+				end
 				if targetTile.type == "void" and not targetTile:findEntities("glass")[1] then
-					self:removeFromTile()
-					return false
+					animDuration = 0.2
+					easing = "inOutCirc"
+					self:destroy(2)
 				elseif targetTile.type == "wall" or (self.type == "box" and targetTile:findEntities("box")[1]) then
+					self:bump(self.tile.pos - targetTile.pos)
 					return true
 				end
 				local box = targetTile:findEntities("box")[1]
 				if self.type == "player" and box then
 					box:move(box.tile.pos - self.tile.pos)
+					self:bump(self.tile.pos - targetTile.pos)
 					return true
 				end
-				local easing = "outCubic"
-				if self.type == "player" then
-					easing = "outBack"
-				end
-				anims = { tween.new(0.15,
+				anims = { tween.new(animDuration,
 					{ type = "shift", offset = self.tile.pos - targetTile.pos },
 					{ offset = vec.new(0, 0) }, easing) }
 				local teleporter = targetTile:findEntities("teleporter")[1]
@@ -89,10 +116,10 @@ return {
 					local teleportTile = self.tile.grid:find("teleporter", { link = targetLink })[1].tile
 					if not teleportTile:findEntities("box")[1] and not teleportTile:findEntities("player")[1] then
 						anims = {
-							tween.new(0.25, { type = "shift", offset = targetTile.pos - teleportTile.pos },
-								{ offset = 2 * targetTile.pos - teleportTile.pos - self.tile.pos }, easing, 0, 0.10),
-							tween.new(0.25, { type = "shift", offset = -(targetTile.pos - self.tile.pos) },
-								{ offset = vec.new(0, 0) }, easing, 0.10, 0.25)
+							tween.new(0.3, { type = "shift", offset = targetTile.pos - teleportTile.pos },
+								{ offset = 2 * targetTile.pos - teleportTile.pos - self.tile.pos }, easing, 0, 0.15),
+							tween.new(0.3, { type = "shift", offset = -(targetTile.pos - self.tile.pos) },
+								{ offset = vec.new(0, 0) }, easing, 0.15)
 						}
 						self:triggerIce(targetTile)
 						targetTile = teleportTile
@@ -124,28 +151,32 @@ return {
 
 		function entity:draw()
 			local pos = self.tile.pos
+			local opacity = 1
+			local scale = 1
+			if self.destroyed then
+				opacity = 0
+			end
 			for i, anim in ipairs(self.anims) do
 				if anim.finished then
 					table.remove(self.anims, i)
 				end
 			end
 			for _, anim in ipairs(self.anims) do
-				if anim:get().type == "shift" then
-					--pos = bib.lerp(self.anim.from, self.anim.to, self.anim.t / self.anim.duration)
-					---@type Vector.lua
-					pos = pos + anim:get().offset
-					--tween
+				if anim.clock > 0 then
+					if anim:get().type == "shift" then
+						--pos = bib.lerp(self.anim.from, self.anim.to, self.anim.t / self.anim.duration)
+						---@type Vector.lua
+						pos = pos + anim:get().offset
+						--tween
+					elseif anim:get().type == "opacity" then
+						opacity = opacity + anim:get().amount
+					elseif anim:get().type == "scale" then
+						scale = scale * anim:get().amount
+					end
 				end
 			end
-			pos = pos * 16
-			pos.x = math.floor(pos.x)
-			pos.y = math.floor(pos.y)
 			local image = nil
-			if self.type == "player" then
-				love.graphics.draw(sprites.player.body, pos.x, pos.y)
-				image = self.data.eyes
-				debug = false
-			elseif self.type == "box" then
+			if self.type == "box" then
 				love.graphics.setColor(colors.list["Orange Brown"])
 			elseif self.type == "glass" then
 				love.graphics.setColor(colors.blend(colors.list["Sky Blue"], { nil, nil, nil, 0.2 }, 1))
@@ -160,12 +191,28 @@ return {
 					love.graphics.setColor(colors.list["Yellow Brown"])
 				end
 			end
+			local color = { love.graphics.getColor() }
+			color[4] = color[4] * opacity
+			love.graphics.setColor(color)
+			love.graphics.push()
+			love.graphics.translate(8, 8)
+			love.graphics.scale(scale, scale)
+			love.graphics.translate(-8, -8)
+			pos = pos * 16 / scale
+			pos.x = math.floor(pos.x)
+			pos.y = math.floor(pos.y)
+			if self.type == "player" then
+				love.graphics.draw(sprites.player.body, pos.x, pos.y)
+				image = self.data.eyes
+			end
 			if image then
 				love.graphics.draw(image, pos.x, pos.y)
 			else
 				love.graphics.rectangle("fill", pos.x + 1, pos.y + 1, 16 - 2, 16 -
 					2)
 			end
+			love.graphics.scale(1 / scale, 1 / scale)
+			love.graphics.pop()
 			love.graphics.setColor(1, 1, 1, 1)
 		end
 

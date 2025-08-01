@@ -18,11 +18,13 @@ return {
 		}
 		---@param entityType entityTypes
 		---@return Entity.lua[]
-		function tile:findEntities(entityType, data)
+		function tile:findEntities(entityType, data, countDestroyed)
 			local hits = {}
 			for _, entity in ipairs(self.entities) do
 				if entity.type == entityType and (data == nil or bib.equals(data, entity.data)) then
-					hits[#hits + 1] = entity
+					if (not entity.destroyed) or countDestroyed then
+						hits[#hits + 1] = entity
+					end
 				end
 			end
 			return hits

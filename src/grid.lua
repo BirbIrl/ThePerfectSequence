@@ -117,7 +117,7 @@ return {
 
 			for _, row in ipairs(self.tiles) do
 				for _, tile in ipairs(row) do
-					local entity = tile:findEntities("box")[1] or tile:findEntities("player")[1]
+					local entity = tile:findEntities("box", nil, true)[1] or tile:findEntities("player", nil, true)[1]
 					if entity then
 						entity:draw()
 					end

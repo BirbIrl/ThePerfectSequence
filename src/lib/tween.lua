@@ -355,7 +355,6 @@ function Tween:set(clock)
 	self.clock = clock
 
 	if self.clock <= 0 then
-		self.clock = 0
 		copyTables(self.subject, self.initial)
 	elseif self.clock >= self.duration or self.clock >= self.hideTime then -- the tween has expired
 		self.clock = self.duration
@@ -383,7 +382,7 @@ end
 
 -- Public interface
 
-function tween.new(duration, subject, target, easing, showTime, hideTime)
+function tween.new(duration, subject, target, easing, showTime, hideTime, delay)
 	showTime = showTime or 0
 	hideTime = hideTime or duration
 	easing = getEasingFunction(easing)
@@ -396,7 +395,7 @@ function tween.new(duration, subject, target, easing, showTime, hideTime)
 		showTime = showTime,
 		hideTime = hideTime,
 		fnished  = false,
-		clock    = 0
+		clock    = delay or 0
 	}, Tween_mt)
 end
 
