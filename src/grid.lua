@@ -14,6 +14,7 @@ return {
 			canvas = love.graphics.newCanvas(),
 			isBeat = false,
 			isLost = false,
+			beenDead = 0,
 			id = id
 		}
 		grid.canvas:setFilter("nearest", "nearest")
@@ -95,6 +96,11 @@ return {
 					tile:update(dt)
 				end
 			end
+			if self.isLost and self.beenDead < 1.3 then
+				self.beenDead = self.beenDead + dt
+			elseif self.beenDead > 0 then
+				self.beenDead = self.beenDead - dt * 3
+			end
 		end
 
 		function grid:draw(x, y, scale)
@@ -129,8 +135,9 @@ return {
 
 			if grid.isBeat then
 				love.graphics.setColor(0.75, 1, 0.75, 0.5)
-			elseif grid.isLost then
-				love.graphics.setColor(1, 0.75, 0.75, 0.5)
+			elseif self.beenDead > 0 then
+				local fade = 1 - self.beenDead / 4
+				love.graphics.setColor(fade, fade, fade, 1)
 			else
 				love.graphics.setColor(1, 1, 1, 1)
 			end

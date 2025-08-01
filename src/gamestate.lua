@@ -17,7 +17,9 @@ return {
 			moveCount = 0,
 			---@type Grid.lua[]
 			grids = {
-			}
+			},
+			---@type {id: integer, status: boolean, step: integer}[]
+			results = {}
 		}
 		function gamestate:reload()
 			local grids = {}
@@ -29,7 +31,11 @@ return {
 			for _, i in ipairs(self.extra) do
 				grids[#grids + 1] = Loader:load(i)
 			end
+			for i, grid in ipairs(self.grids) do
+				grids[i].beenDead = grid.beenDead
+			end
 			gamestate.grids = grids
+			gamestate.results = {}
 		end
 
 		function gamestate:update(dt)
@@ -50,12 +56,16 @@ return {
 
 		---@param directionName directions
 		---@param record boolean
-		function gamestate:step(directionName, record)
+		function gamestate:step(directionName, record, step)
+			step = step or self.moveCount + 1
 			local moved = false
-			for _, grid in ipairs(self.grids) do
-				if not grid.isBeat and not grid.isLost then
+			for i, grid in ipairs(self.grids) do
+				if not (grid.isBeat or grid.isLost) then
 					grid:step(directionName)
 					moved = true
+					if grid.isBeat or grid.isLost then
+						self.results[#self.results + 1] = { id = i, status = grid.isBeat, step = step }
+					end
 				end
 			end
 			if moved and record then
@@ -132,7 +142,7 @@ return {
 				if i == moveCount then
 					gamestate:wipeAnims()
 				end
-				self:step(moveVec)
+				self:step(moveVec, nil, i)
 			end
 			if keepAnims then return true end
 			gamestate:wipeAnims()

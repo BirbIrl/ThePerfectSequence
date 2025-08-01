@@ -51,8 +51,18 @@ function preview:draw(gamestate)
 		love.graphics.clear()
 		love.graphics.draw(sprites.ui.key.body, 16, 16)
 		love.graphics.setCanvas(self.canvas)
+		local moveResult
+		for _, result in ipairs(gamestate.results) do
+			if result.step == i and moveResult ~= false then
+				moveResult = result.status
+			end
+		end
 		if i > moveCount then
 			love.graphics.setColor(1, 1, 1, 0.65)
+		elseif moveResult == false then
+			love.graphics.setColor(1, 0.5, 0.5, 1)
+		elseif moveResult == true then
+			love.graphics.setColor(0.5, 1, 0.5, 1)
 		else
 			love.graphics.setColor(1, 1, 1, 1)
 		end
