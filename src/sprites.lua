@@ -1,5 +1,6 @@
 local s = "assets/sprites/"
 local p = s .. "player/"
+local k = s .. "key/"
 local l = love.graphics.newImage
 return {
 	player = {
@@ -13,6 +14,13 @@ return {
 		forward = l(p .. "forward.png"),
 	},
 	ui = {
-		frame = l(s .. "frame.png")
+		frame = l(s .. "frame.png"),
+		key = {
+			body = l(k .. "body.png"),
+			left = l(k .. "left.png"),
+			right = l(k .. "right.png"),
+			up = l(k .. "up.png"),
+			down = l(k .. "down.png"),
+		}
 	}
 }

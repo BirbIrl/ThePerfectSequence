@@ -12,6 +12,7 @@ local colors = require "lib.colors"
 local sprites = require "sprites"
 local entity = require "entity"
 local vec = require "lib.vector"
+local keyPreview = require "keyPreview"
 --- DEV ZONE ---
 --- levels named [number].lua are loaded from the `./levels/` folder, you can load the chosen one using the number below
 --- the level live-updates when you save it's file, and reloads the game replaying all inputs to reach the same point you're in
@@ -27,6 +28,7 @@ function love.load()
 	sh = love.graphics.getHeight()
 	gamestate = Gamestate.new(level, depth, extra)
 
+	love.graphics.setDefaultFilter("nearest", "nearest")
 	love.keyboard.setKeyRepeat(true)
 end
 
@@ -62,7 +64,6 @@ end
 
 ---@diagnostic disable-next-line: duplicate-set-field
 function love.draw()
-	love.graphics.push()
 	local gridCount = #gamestate.grids
 	local scale
 	local wrap
@@ -91,7 +92,7 @@ function love.draw()
 	local grids = gamestate.grids
 	local gridSize = grids[1].size
 	local paddingW = (sw - (wrap) * gridSize * scale - scale * gridSize / 9) / 2
-	local paddingH = (sh - (lines) * gridSize * scale - scale * gridSize / 9) / 16
+	local paddingH = (sh - (lines) * gridSize * scale - scale * gridSize / 9) / (8 / lines)
 	for i, grid in ipairs(grids) do
 		grid:draw(((i - 1) % wrap) * gridSize * scale + paddingW,
 			(math.floor((i - 1) / wrap)) * gridSize * scale + paddingH,
@@ -127,7 +128,7 @@ function love.draw()
 	end
 	local x = 10
 	local y = 10 + sh
-	love.graphics.pop()
+	keyPreview:draw(gamestate)
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.printf(message, x, y, love.graphics.getWidth() - x, "left")
 	love.graphics.draw(sprites.ui.frame, 0, 0)
