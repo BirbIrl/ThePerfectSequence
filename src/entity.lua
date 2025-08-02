@@ -207,8 +207,6 @@ return {
 			local image = nil
 			if self.type == "glass" then
 				love.graphics.setColor(colors.blend(colors.list["Sky Blue"], { nil, nil, nil, 0.2 }, 1))
-			elseif self.type == "teleporter" then
-				love.graphics.setColor(colors.list["Plum Purple"])
 			elseif self.type == "exit" then
 				love.graphics.setColor(colors.list["Blue"])
 			elseif self.type == "sensor" then
@@ -235,6 +233,9 @@ return {
 				image = sprites.box
 			elseif self.type == "glass" then
 				image = sprites.glass
+			elseif self.type == "teleporter" then
+				love.graphics.draw(sprites.teleporter.base, pos.x, pos.y)
+				image = sprites.teleporter[math.ceil(self.data.link / 2)]
 			end
 			if image then
 				love.graphics.draw(image, pos.x, pos.y)

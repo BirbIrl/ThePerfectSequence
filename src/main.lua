@@ -8,8 +8,8 @@ end
 --TODO:
 --endgame
 --rewind shader
+--help screen
 --boot on/off
---sound
 --itch.io page, windows build
 local assets = require("assetIndex")
 sprites = assets.sprites
@@ -28,7 +28,7 @@ local depth
 --- DEV ZONE ---
 --- levels named [number].lua are loaded from the `./levels/` folder, you can load the chosen one using the number below
 --- the level live-updates when you save it's file, and reloads the game replaying all inputs to reach the same point you're in
-local level = 6  -- which level to load?
+local level = 13 -- which level to load?
 local extra = {} -- levels you always want to be loaded as preview
 local enableShaders = true
 --local extra = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } -- millions must load

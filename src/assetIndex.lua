@@ -3,6 +3,7 @@ local so = "assets/sounds/"
 local p = s .. "player/"
 local k = s .. "key/"
 local w = s .. "wall/"
+local t = s .. "teleporter/"
 local i = love.graphics.newImage
 local a = love.audio.newSource
 return {
@@ -39,6 +40,16 @@ return {
 				i(w .. "chisel1.png"),
 				i(w .. "chisel2.png"),
 			}
+		},
+		teleporter = {
+			i(t .. "1.png"),
+			i(t .. "2.png"),
+			i(t .. "3.png"),
+			i(t .. "4.png"),
+			i(t .. "5.png"),
+			i(t .. "6.png"),
+			i(t .. "7.png"),
+			base = i(t .. "base.png"),
 		},
 		box = i(s .. "box.png"),
 		glass = i(s .. "glass.png"),
