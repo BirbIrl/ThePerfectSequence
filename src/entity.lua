@@ -113,15 +113,19 @@ return {
 					{ type = "shift", offset = self.tile.pos - targetTile.pos },
 					{ offset = vec.new(0, 0) }, easing) }
 				local teleporter = targetTile:findEntities("teleporter")[1]
-				if teleporter then
+				if teleporter and not teleporter.destroyed then
 					local targetLink = teleporter.data.link
 					if teleporter.data.link % 2 == 0 then
 						targetLink = targetLink - 1
 					else
 						targetLink = targetLink + 1
 					end
-					local teleportTile = self.tile.grid:find("teleporter", { link = targetLink })[1].tile
-					if teleportTile == self.tile or (not teleportTile:findEntities("box")[1] and not teleportTile:findEntities("player")[1]) then
+					local linkedTeleporter = self.tile.grid:find("teleporter", { link = targetLink })[1]
+					local teleportTile
+					if linkedTeleporter then
+						teleportTile = linkedTeleporter.tile
+					end
+					if teleportTile == self.tile or (teleportTile and not teleportTile:findEntities("box")[1] and not teleportTile:findEntities("player")[1]) then
 						anims = {
 							tween.new(0.3, { type = "shift", offset = targetTile.pos - teleportTile.pos },
 								{ offset = 2 * targetTile.pos - teleportTile.pos - self.tile.pos }, easing, 0, 0.15),
