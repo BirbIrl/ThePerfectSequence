@@ -38,7 +38,7 @@ return {
 			local scaleAmount = 0.5
 			if self.type == "glass" then
 				scaleAmount = 0.9
-			else
+			elseif self.type == "player" or self.type == "box" then
 				self.sound = sounds.die
 			end
 			self.anims[#self.anims + 1] = tween.new(duration,

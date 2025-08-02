@@ -6,8 +6,7 @@ function sprint(table)
 end
 
 --TODO:
---music
---wall texture
+--vignette
 --endgame
 --rewind shader
 --boot on/off
@@ -43,6 +42,7 @@ end
 local chroma = love.graphics.newShader("assets/shaders/chroma.vert")
 chroma:send("elapsed", love.timer.getTime())
 local scan = love.graphics.newShader("assets/shaders/scan.vert")
+local vignette = love.graphics.newShader("assets/shaders/vignette.vert")
 function love.load()
 	sw = 960 --love.graphics.getWidth()
 	sh = 640 --love.graphics.getHeight()
@@ -219,6 +219,7 @@ function love.draw()
 		love.graphics.setColor(1, 1, 1, 1)
 	end
 	--
+	love.graphics.setCanvas()
 	love.graphics.setBlendMode("alpha")
 	keyPreview:draw(gamestate)
 	love.graphics.setColor(1, 1, 1, 1)
@@ -228,11 +229,17 @@ function love.draw()
 		love.graphics.setShader(chroma)
 	end
 	love.graphics.draw(mainCanvas)
-	love.graphics.setCanvas()
+	love.graphics.setCanvas(mainCanvas)
 	if enableShaders then
 		love.graphics.setShader(scan)
 	end
 	love.graphics.draw(bounceCanvas)
+	love.graphics.setCanvas(bounceCanvas)
+	--enableShaders? nah always
+	vignette:send("opacity", 0.3)
+	love.graphics.setShader(vignette)
+	love.graphics.draw(mainCanvas)
+	love.graphics.setShader()
 	chroma:send("alphaStuff", true)
 	if enableShaders then
 		love.graphics.setShader(chroma)
@@ -266,6 +273,11 @@ function love.draw()
 	local y = 10 + sh
 
 	love.graphics.printf(message, x, y, love.graphics.getWidth() - x, "left")
+	love.graphics.setCanvas()
+	vignette:send("opacity", 0.4)
+	love.graphics.setShader(vignette)
+	love.graphics.draw(bounceCanvas)
+	love.graphics.setShader()
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field

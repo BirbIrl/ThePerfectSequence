@@ -59,7 +59,7 @@ return {
 					return false
 				end
 				if self.type == "ground" then
-					love.graphics.setColor(0.8, 0.8, 0.8, 1)
+					love.graphics.setColor(0.7, 0.7, 0.7, 1)
 				end
 				love.graphics.draw(sprites.groundfade, pos.x, pos.y + 16)
 				image = nil
@@ -109,7 +109,7 @@ return {
 			elseif self.type == "void" then
 				love.graphics.setColor(0, 0, 0, 0)
 			elseif self.type == "ground" then
-				love.graphics.setColor(0.8, 0.8, 0.8, 1)
+				love.graphics.setColor(0.7, 0.7, 0.7, 1)
 				image = sprites.ground
 				r = math.rad(love.math.random(0, 4) * 90)
 			end
