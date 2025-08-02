@@ -10,7 +10,6 @@ local preview = {
 	time = 0,
 }
 local glow = love.graphics.newShader("./assets/shaders/glow.vert")
-glow:send("alpha", 1)
 
 for i = 1, 16, 1 do
 	preview.seeds[i] = (love.math.random() + 0.25) * bib.sign(love.math.random() - 0.5)

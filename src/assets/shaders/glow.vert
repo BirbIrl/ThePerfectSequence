@@ -1,7 +1,6 @@
 // yoinked and modified version of https://gist.github.com/mebens/4218802
 extern int samples = 30; // pixels per axis; higher = bigger glow, worse performance
 extern float quality = 10; // lower = smaller glow, better quality
-extern float alpha = 1; // % of shader applied
 
 vec4 effect(vec4 colour, Image tex, vec2 tc, vec2 sc)
 {
@@ -20,5 +19,5 @@ vec4 effect(vec4 colour, Image tex, vec2 tc, vec2 sc)
     }
     vec4 result = (sum / (samples * samples));
 
-    return mix(source, result + source, alpha) * colour;
+    return mix(source, result + source, 1) * colour;
 }
