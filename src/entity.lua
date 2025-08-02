@@ -3,8 +3,6 @@ local colors = require "lib.colors"
 local vec = require "lib.vector"
 local bib = require "lib.biblib"
 local assets = require "assetIndex"
-local sprites = assets.sprites
-local sounds = assets.sounds
 local tween = require "lib.tween"
 return {
 	---@param tile Tile.lua
@@ -120,7 +118,7 @@ return {
 						targetLink = targetLink + 1
 					end
 					local teleportTile = self.tile.grid:find("teleporter", { link = targetLink })[1].tile
-					if not teleportTile:findEntities("box")[1] and not teleportTile:findEntities("player")[1] then
+					if teleportTile == self.tile or (not teleportTile:findEntities("box")[1] and not teleportTile:findEntities("player")[1]) then
 						anims = {
 							tween.new(0.3, { type = "shift", offset = targetTile.pos - teleportTile.pos },
 								{ offset = 2 * targetTile.pos - teleportTile.pos - self.tile.pos }, easing, 0, 0.15),
@@ -129,12 +127,34 @@ return {
 						}
 						self:triggerIce(targetTile)
 						targetTile = teleportTile
+						teleporter.sound = sounds.portal
 					end
 				end
 
 				local sensor = targetTile:findEntities("sensor", { triggered = false })[1]
-				if sensor then
-					sensor.data.triggered = true
+				local exit = targetTile:findEntities("exit")[1]
+				if sensor or (self.type == "box" and exit) then
+					local targetSound
+					if self.tile.grid:checkWin() == 1 then
+						targetSound = sounds.clear
+					elseif exit then
+						targetSound = sounds.ding[1]
+					else
+						targetSound = sounds.ding[2]
+					end
+					if exit then
+						exit.sound = targetSound
+					elseif sensor then
+						sensor.sound = targetSound
+						sensor.data.triggered = true
+					end
+				end
+				if not self.sound then
+					if self.type == "box" then
+						self.sound = sounds.push
+					elseif self.type == "player" then
+						self.sound = sounds.walk
+					end
 				end
 			end
 			if anims then

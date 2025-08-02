@@ -46,7 +46,17 @@ return {
 		groundfade = i(s .. "groundfade.png"),
 	},
 	sounds = {
-		die = a(so .. "die.ogg", "static")
+		die = a(so .. "die.ogg", "static"),
+		levelComplete = a(so .. "levelComplete.ogg", "static"),
+		portal = a(so .. "portal.ogg", "static"),
+		push = a(so .. "push.ogg", "static"),
+		ding = {
+			a(so .. "ding1.ogg", "static"),
+			a(so .. "ding2.ogg", "static")
+		},
+		clear = a(so .. "clear.ogg", "static"),
+		bump = a(so .. "bump.ogg", "static"),
+		walk = a(so .. "walk.ogg", "static"),
 	},
 	songs = {
 		stuck = a("assets/songs/stuck.ogg", "stream")

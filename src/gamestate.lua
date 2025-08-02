@@ -1,6 +1,5 @@
 local Grid = require "grid"
 local bib = require "lib.biblib"
-local sprites = require "assetIndex".sprites
 return {
 	---@param level integer
 	---@param depth integer
@@ -56,6 +55,7 @@ return {
 			elseif self.moveCount > 0 then
 				gamestate:moveToInput(self.moveCount)
 			end
+			gamestate:wipeAnims()
 		end
 
 		---@param directionName directions

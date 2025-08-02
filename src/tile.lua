@@ -2,7 +2,6 @@
 local colors = require "lib.colors"
 local bib = require "lib.biblib"
 local vec = require "lib.vector"
-local sprites = require "assetIndex".sprites
 return {
 	---@param grid Grid.lua
 	---@return Tile.lua

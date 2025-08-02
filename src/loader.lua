@@ -13,7 +13,6 @@ local vec = require "lib.vector"
 local Entity = require "entity"
 local serpent = require "lib.serpent"
 local Grid = require("grid")
-local sprites = require "assetIndex".sprites
 ---@class Loader.lua
 local loader = {}
 loader.levelData = {}

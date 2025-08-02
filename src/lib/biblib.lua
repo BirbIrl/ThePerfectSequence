@@ -65,6 +65,16 @@ function biblib.cookieCutter(source, form, out)
 	return result
 end
 
+function biblib.addIfNotPresent(t, value)
+	for _, candidate in ipairs(t) do
+		if candidate == value then
+			return false
+		end
+	end
+	t[#t + 1] = value
+	return true
+end
+
 function biblib.equals(a, b)
 	if type(a) ~= type(b) then
 		return false

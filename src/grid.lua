@@ -1,7 +1,6 @@
 local tile = require "tile"
 local vec = require "lib.vector"
 local bib = require "lib.biblib"
-local sprites = require "assetIndex".sprites
 return {
 	---@param preset Level.lua
 	new = function(id)
@@ -37,18 +36,22 @@ return {
 			end
 		end
 		function grid:checkWin()
+			local missing = 0
 			for _, exit in ipairs(self:find("exit")) do
 				if not exit.tile:findEntities("box")[1] then
-					return false
+					missing = missing + 1
 				end
 			end
 			for _, sensor in ipairs(self:find("sensor")) do
 				if not sensor.data.triggered then
-					return false
+					missing = missing + 1
 				end
 			end
-			self.isBeat = true
-			return true
+			if missing == 0 then
+				self.isBeat = true
+				return true
+			end
+			return missing
 		end
 
 		function grid:checkLoss()

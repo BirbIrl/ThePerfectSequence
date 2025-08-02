@@ -12,23 +12,26 @@ end
 --boot on/off
 --sound
 --itch.io page, windows build
+local assets = require("assetIndex")
+sprites = assets.sprites
+sounds = assets.sounds
 Loader = require "loader"
 local Gamestate = require("gamestate")
 local bib = require "lib.biblib"
 local colors = require "lib.colors"
-sprites = require "assetIndex".sprites
+
 local entity = require "entity"
 local vec = require "lib.vector"
 local keyPreview = require "keyPreview"
 local font = love.graphics.newFont("assets/fonts/TerminessNerdFont-Bold.ttf", 128)
 local song = require "assetIndex".songs.stuck
-local enableShaders = true
 local depth
 --- DEV ZONE ---
 --- levels named [number].lua are loaded from the `./levels/` folder, you can load the chosen one using the number below
 --- the level live-updates when you save it's file, and reloads the game replaying all inputs to reach the same point you're in
-local level = 14 -- which level to load?
+local level = 1  -- which level to load?
 local extra = {} -- levels you always want to be loaded as preview
+local enableShaders = true
 --local extra = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } -- millions must load
 ---
 -- levels on which you wanna run checks
@@ -125,17 +128,21 @@ function love.update(dt)
 		popup.nxtDuration = nil
 	end
 	---soundsworks (i sure hope it does)
+	local sounds = {}
 	for _, grid in ipairs(gamestate.grids) do
 		for _, row in ipairs(grid.tiles) do
 			for _, tile in ipairs(row) do
 				for _, ent in ipairs(tile.entities) do
 					if ent.sound then
-						ent.sound:clone():play()
+						bib.addIfNotPresent(sounds, ent.sound)
 						ent.sound = nil
 					end
 				end
 			end
 		end
+	end
+	for _, sound in ipairs(sounds) do
+		sound:clone():play()
 	end
 end
 
@@ -287,6 +294,7 @@ function love.keypressed(key, _, isRepeat)
 		if not isRepeat or keyCooldownKey ~= key or keyCooldown == 0 then
 			if directionName then
 				if gamestate:step(directionName, true) then
+					sounds.levelComplete:play()
 					local newDepth = gamestate.depth
 					if newDepth == 0 then newDepth = 1 end
 					transitionState = Gamestate.new(gamestate.level + 1, newDepth)
