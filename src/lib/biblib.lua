@@ -79,4 +79,12 @@ function biblib.sign(number)
 	return number > 0 and 1 or (number == 0 and 0 or -1)
 end
 
+---@param low number
+---@param n number
+---@param high number
+---@return number
+function biblib.clamp(low, n, high)
+	return math.min(math.max(n, low), high)
+end
+
 return biblib

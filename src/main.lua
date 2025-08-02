@@ -13,12 +13,12 @@ local sprites = require "sprites"
 local entity = require "entity"
 local vec = require "lib.vector"
 local keyPreview = require "keyPreview"
-local font = love.graphics.newFont
+local font = love.graphics.newFont("assets/fonts/TerminessNerdFont-Bold.ttf", 128)
 --- DEV ZONE ---
 --- levels named [number].lua are loaded from the `./levels/` folder, you can load the chosen one using the number below
 --- the level live-updates when you save it's file, and reloads the game replaying all inputs to reach the same point you're in
-local level = 2  -- which level to load?
-local depth = 1  -- how many previous levels should this display in parallel? (only 0/1 works well for now)
+local level = 1  -- which level to load?
+local depth = 0  -- how many previous levels should this display in parallel? (only 0/1 works well for now)
 local extra = {} -- levels you always want to be loaded as preview
 --local extra = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } -- millions must load
 ---
@@ -37,6 +37,15 @@ function love.load()
 	transitionPercentage = 0
 	transitionDistance = sw / 2
 	bounceCanvas = love.graphics.newCanvas(sw, sh)
+	popup = {
+		message = nil,
+		showPercent = 0,
+		duration = 0,
+		revealRate = 5,
+		hideRate = 3,
+		next = nil,
+		nextDuration = 0
+	}
 
 	love.graphics.setDefaultFilter("nearest", "nearest")
 	love.keyboard.setKeyRepeat(true)
@@ -73,7 +82,20 @@ function love.update(dt)
 			end
 		end
 	end
-	--print(timer)
+	if popup.duration > 0 then
+		popup.duration = popup.duration - dt
+		popup.showPercent = bib.lerp(popup.showPercent, 1, dt * popup.revealRate)
+	else
+		popup.showPercent = bib.lerp(popup.showPercent, -0.1, dt * popup.hideRate)
+	end
+	popup.duration = math.max(popup.duration, 0)
+	popup.showPercent = bib.clamp(0, popup.showPercent, 1)
+	if popup.showPercent == 0 and popup.next then
+		popup.message = popup.next
+		popup.duration = popup.nextDuration
+		popup.next = nil
+		popup.nxtDuration = nil
+	end
 end
 
 function lurker.postswap(file)
@@ -122,6 +144,8 @@ local function drawGamestate(gamestate, shiftScreen, skipFirst)
 	end
 	if shiftScreen then
 		transitionShift = transitionShift + (sw / 2 - paddingW * 2)
+	elseif gamestate.depth == 0 then
+		transitionShift = transitionShift / 2 + sw / 4 - paddingW
 	end
 	for i, grid in ipairs(grids) do
 		if not (skipFirst and i == 1) then
@@ -146,6 +170,12 @@ function love.draw()
 	drawGamestate(gamestate, false)
 	if transitionState then
 		drawGamestate(transitionState, true, true)
+	end
+	if popup.message then
+		love.graphics.setColor(1, 1, 1, popup.showPercent)
+		love.graphics.printf(popup.message, font, 0, (sh + font:getDescent() - font:getAscent()) / 2, sw,
+			"center")
+		love.graphics.setColor(1, 1, 1, 1)
 	end
 	--
 	love.graphics.setBlendMode("alpha")
@@ -203,8 +233,12 @@ function love.keypressed(key, _, isRepeat)
 					transitionState = Gamestate.new(gamestate.level + 1, newDepth)
 					transitionState.inputs = gamestate.inputs
 					transitionState.moveCount = 0
+					popup.next = gamestate.level .. "/15"
+					popup.nextDuration = 2
 					transitionPercentage = -0.5
-					gamestate.lockFirst = true
+					if gamestate.depth > 0 then
+						gamestate.lockFirst = true
+					end
 				end
 			elseif key == "e" or (key == "y" and love.keyboard.isDown("lctrl")) or (key == "z" and love.keyboard.isDown("lctrl") and love.keyboard.isDown("lshift")) then
 				gamestate:forward()
