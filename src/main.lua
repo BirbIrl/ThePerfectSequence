@@ -46,7 +46,7 @@ else
 end
 local finale = 0
 local chroma = love.graphics.newShader("./assets/shaders/chroma.vert")
-chroma:send("elapsed", love.timer.getTime())
+--chroma:send("elapsed", love.timer.getTime())
 local scan = love.graphics.newShader("./assets/shaders/scan.vert")
 local vignette = love.graphics.newShader("./assets/shaders/vignette.vert")
 function love.load()
@@ -112,8 +112,8 @@ function love.update(dt)
 	gamestate:update(dt)
 	timer = timer + dt
 	keyPreview:update(gamestate, dt)
-	chroma:send("elapsed", love.timer.getTime())
-	scan:send("phase", love.timer.getTime())
+	--chroma:send("elapsed", love.timer.getTime())
+	--scan:send("phase", love.timer.getTime())
 	local tCap = 1.2
 	if transitionState then
 		if transitionPercentage < tCap then
@@ -319,12 +319,12 @@ function love.draw()
 	love.graphics.setShader(vignette)
 	love.graphics.draw(mainCanvas)
 	love.graphics.setShader()
-	chroma:send("alphaStuff", true)
+	--chroma:send("alphaStuff", true)
 	if enableShaders then
 		love.graphics.setShader(chroma)
 	end
 	love.graphics.draw(sprites.ui.frame, 0, 0, 0, 2, 2)
-	chroma:send("alphaStuff", false)
+	--chroma:send("alphaStuff", false)
 	love.graphics.setBlendMode("alpha")
 	love.graphics.setShader()
 	local message =
@@ -353,7 +353,7 @@ function love.draw()
 
 	love.graphics.printf(message, x, y, love.graphics.getWidth() - x, "left")
 	love.graphics.setCanvas()
-	vignette:send("opacity", 0.4)
+	--vignette:send("opacity", 0.4)
 	love.graphics.setShader(vignette)
 	love.graphics.draw(bounceCanvas)
 	love.graphics.setShader()
