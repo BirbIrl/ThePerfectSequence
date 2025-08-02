@@ -10,6 +10,7 @@ end
 --help screen
 --itch.io page, windows build
 --sprites
+enableShaders = true
 local assets = require("assetIndex")
 sprites = assets.sprites
 sounds = assets.sounds
@@ -34,7 +35,6 @@ local solution = { "up", "up", "left", "up", "right", "right", "right", "right",
 --- the level live-updates when you save it's file, and reloads the game replaying all inputs to reach the same point you're in
 local level = 1  -- which level to load?
 local extra = {} -- levels you always want to be loaded as preview
-local enableShaders = true
 --local extra = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } -- millions must load
 ---
 -- levels on which you wanna run checks
@@ -45,10 +45,13 @@ else
 	depth = 1
 end
 local finale = 0
-local chroma = love.graphics.newShader("./assets/shaders/chroma.vert")
---chroma:send("elapsed", love.timer.getTime())
-local scan = love.graphics.newShader("./assets/shaders/scan.vert")
-local vignette = love.graphics.newShader("./assets/shaders/vignette.vert")
+local chroma, scan, vignette
+if enableShaders then
+	chroma = love.graphics.newShader("assets/shaders/chroma.vert")
+	chroma:send("elapsed", love.timer.getTime())
+	scan = love.graphics.newShader("assets/shaders/scan.vert")
+	vignette = love.graphics.newShader("assets/shaders/vignette.vert")
+end
 function love.load()
 	sw = 960 --love.graphics.getWidth()
 	sh = 640 --love.graphics.getHeight()
@@ -112,8 +115,10 @@ function love.update(dt)
 	gamestate:update(dt)
 	timer = timer + dt
 	keyPreview:update(gamestate, dt)
-	--chroma:send("elapsed", love.timer.getTime())
-	--scan:send("phase", love.timer.getTime())
+	if enableShaders then
+		chroma:send("elapsed", love.timer.getTime())
+		scan:send("phase", love.timer.getTime())
+	end
 	local tCap = 1.2
 	if transitionState then
 		if transitionPercentage < tCap then
@@ -315,16 +320,20 @@ function love.draw()
 	love.graphics.setCanvas(bounceCanvas)
 	love.graphics.clear()
 	--enableShaders? nah always
-	vignette:send("opacity", 0.3)
-	love.graphics.setShader(vignette)
+	if enableShaders then
+		vignette:send("opacity", 0.3)
+		love.graphics.setShader(vignette)
+	end
 	love.graphics.draw(mainCanvas)
 	love.graphics.setShader()
-	--chroma:send("alphaStuff", true)
 	if enableShaders then
+		chroma:send("alphaStuff", true)
 		love.graphics.setShader(chroma)
 	end
 	love.graphics.draw(sprites.ui.frame, 0, 0, 0, 2, 2)
-	--chroma:send("alphaStuff", false)
+	if enableShaders then
+		chroma:send("alphaStuff", false)
+	end
 	love.graphics.setBlendMode("alpha")
 	love.graphics.setShader()
 	local message =
@@ -353,8 +362,10 @@ function love.draw()
 
 	love.graphics.printf(message, x, y, love.graphics.getWidth() - x, "left")
 	love.graphics.setCanvas()
-	--vignette:send("opacity", 0.4)
-	love.graphics.setShader(vignette)
+	if enableshaders then
+		vignette:send("opacity", 0.4)
+		love.graphics.setShader(vignette)
+	end
 	love.graphics.draw(bounceCanvas)
 	love.graphics.setShader()
 end

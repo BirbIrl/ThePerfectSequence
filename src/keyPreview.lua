@@ -9,7 +9,11 @@ local preview = {
 	seeds = {},
 	time = 0,
 }
-local glow = love.graphics.newShader("./assets/shaders/glow.vert")
+
+local glow
+if enableShaders then
+	glow = love.graphics.newShader("assets/shaders/glow.vert")
+end
 
 for i = 1, 16, 1 do
 	preview.seeds[i] = (love.math.random() + 0.25) * bib.sign(love.math.random() - 0.5)
@@ -66,7 +70,9 @@ function preview:draw(gamestate)
 			love.graphics.setColor(1, 1, 1, 1)
 		end
 		if i == moveCount then
-			love.graphics.setShader(glow)
+			if enableShaders then
+				love.graphics.setShader(glow)
+			end
 		end
 		love.graphics.draw(self.keyvas, x, y, 0, scale, scale)
 
