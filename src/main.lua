@@ -45,10 +45,10 @@ else
 	depth = 1
 end
 local finale = 0
-local chroma = love.graphics.newShader("assets/shaders/chroma.vert")
+local chroma = love.graphics.newShader("./assets/shaders/chroma.vert")
 chroma:send("elapsed", love.timer.getTime())
-local scan = love.graphics.newShader("assets/shaders/scan.vert")
-local vignette = love.graphics.newShader("assets/shaders/vignette.vert")
+local scan = love.graphics.newShader("./assets/shaders/scan.vert")
+local vignette = love.graphics.newShader("./assets/shaders/vignette.vert")
 function love.load()
 	sw = 960 --love.graphics.getWidth()
 	sh = 640 --love.graphics.getHeight()
