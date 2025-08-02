@@ -46,7 +46,7 @@ return {
 				love.graphics.setColor(0, 0, 0, 0)
 			elseif self.type == "ground" then
 				image = sprites.ground
-				--r = math.rad(love.math.random(0, 4) * 90)
+				r = math.rad(love.math.random(0, 4) * 90)
 			elseif self.type == "wall" then
 				image = sprites.wall
 			end
