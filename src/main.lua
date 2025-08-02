@@ -92,6 +92,11 @@ function love.update(dt)
 		song:setVolume(1)
 	elseif finale == 2 then
 		song:setVolume(bib.clamp(0, 1 - transitionPercentage, 1))
+	elseif finale == 4 and song:getVolume() < 1 then
+		if song:getVolume() == 0 then
+			song:seek(0)
+		end
+		song:setVolume(bib.clamp(0, transitionPercentage, 1))
 	end
 	local now = song:tell("seconds")
 	if (now >= loopEnd) then
@@ -133,7 +138,7 @@ function love.update(dt)
 			finale = 3
 		end
 	elseif finale == 3 then
-		transitionPercentage = transitionPercentage + dt / 3 --/50
+		transitionPercentage = transitionPercentage + dt / 30
 		if gamestate.moveCount / #gamestate.inputs < transitionPercentage then
 			gamestate:forward()
 		end

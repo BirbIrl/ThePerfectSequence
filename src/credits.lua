@@ -9,7 +9,7 @@ local credits = {
 	"\n\nBirbirl",
 	"text",
 	0,
-	"\n(Programming, Art)",
+	"\n(Programming and Art)",
 	"sub", -- correct
 	2,
 	"\n\nLuneDaFox",
