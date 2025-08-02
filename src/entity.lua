@@ -239,6 +239,23 @@ return {
 				image = sprites.glass
 			elseif self.type == "teleporter" then
 				love.graphics.draw(sprites.teleporter.base, pos.x, pos.y)
+				local occupied = self.tile:findEntities("player")[1] or self.tile:findEntities("box")[1]
+				if not occupied then
+					local targetLink = self.data.link
+					if self.data.link % 2 == 0 then
+						targetLink = targetLink - 1
+					else
+						targetLink = targetLink + 1
+					end
+					local linkedTele = self.tile.grid:find("teleporter", { link = targetLink })[1]
+					if linkedTele then
+						occupied = linkedTele.tile:findEntities("player")[1] or linkedTele.tile:findEntities("box")[1]
+					end
+				end
+				if occupied then
+					love.graphics.setColor(0.5, 0.5, 0.5, 1)
+				end
+
 				image = sprites.teleporter[math.ceil(self.data.link / 2)]
 			end
 			if image then

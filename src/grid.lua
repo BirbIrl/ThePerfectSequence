@@ -145,7 +145,7 @@ return {
 			love.graphics.setBlendMode("alpha", "premultiplied")
 
 			if grid.isBeat then
-				love.graphics.setColor(0.9, 1, 0.9, 1)
+				love.graphics.setColor(0.85, 1, 0.85, 1)
 			elseif self.beenDead > 0 then
 				local fade = 1 - self.beenDead / 4
 				love.graphics.setColor(fade, fade, fade, fade)

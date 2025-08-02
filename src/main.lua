@@ -6,11 +6,10 @@ function sprint(table)
 end
 
 --TODO:
---endgame
 --rewind shader
 --help screen
---boot on/off
 --itch.io page, windows build
+--sprites
 local assets = require("assetIndex")
 sprites = assets.sprites
 sounds = assets.sounds
@@ -18,6 +17,7 @@ Loader = require "loader"
 local Gamestate = require("gamestate")
 local bib = require "lib.biblib"
 local colors = require "lib.colors"
+local credits = require "credits"
 
 local entity = require "entity"
 local vec = require "lib.vector"
@@ -25,10 +25,14 @@ local keyPreview = require "keyPreview"
 local font = love.graphics.newFont("assets/fonts/TerminessNerdFont-Bold.ttf", 128)
 local song = require "assetIndex".songs.stuck
 local depth
+local solution = { "up", "up", "left", "up", "right", "right", "right", "right", "right", "up", "right", "right", "down",
+	"down", "left", "down", "right", "right", "right", "right", "down", "right", "up", "up", "up", "up", "up", "up",
+	"right", "up", "left", "left", "left", "left", "left", "left", "left", "left", "left", "left", "left", "up", "right",
+	"right", "right", "right", "right", "left", "left", "left", "left", "left", "left", "down", "down", "down" }
 --- DEV ZONE ---
 --- levels named [number].lua are loaded from the `./levels/` folder, you can load the chosen one using the number below
 --- the level live-updates when you save it's file, and reloads the game replaying all inputs to reach the same point you're in
-local level = 13 -- which level to load?
+local level = 1  -- which level to load?
 local extra = {} -- levels you always want to be loaded as preview
 local enableShaders = true
 --local extra = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } -- millions must load
@@ -40,7 +44,7 @@ if level == 1 then
 else
 	depth = 1
 end
-
+local finale = 0
 local chroma = love.graphics.newShader("assets/shaders/chroma.vert")
 chroma:send("elapsed", love.timer.getTime())
 local scan = love.graphics.newShader("assets/shaders/scan.vert")
@@ -49,6 +53,8 @@ function love.load()
 	sw = 960 --love.graphics.getWidth()
 	sh = 640 --love.graphics.getHeight()
 	gamestate = Gamestate.new(level, depth, extra)
+	----------------
+	--gamestate.inputs = solution
 	mainCanvas = love.graphics.newCanvas(sw, sh)
 	transitionState = nil
 	transitionPercentage = 0
@@ -82,6 +88,11 @@ local keyCooldown = 0
 local keyCooldownKey = nil
 local timer = 0
 function love.update(dt)
+	if finale == 0 then
+		song:setVolume(1)
+	elseif finale == 2 then
+		song:setVolume(bib.clamp(0, 1 - transitionPercentage, 1))
+	end
 	local now = song:tell("seconds")
 	if (now >= loopEnd) then
 		song:seek(song:tell("seconds") - loopLength, "seconds")
@@ -109,7 +120,32 @@ function love.update(dt)
 				transitionPercentage = 0
 				gamestate = transitionState
 				transitionState = nil
+				if finale == 1 then
+					transitionPercentage = 0
+					finale = 2
+				end
 			end
+		end
+	elseif finale == 2 then
+		transitionPercentage = bib.lerp(transitionPercentage, tCap, dt * tCap)
+		if transitionPercentage > tCap * 0.9 then
+			transitionPercentage = 0
+			finale = 3
+		end
+	elseif finale == 3 then
+		transitionPercentage = transitionPercentage + dt / 3 --/50
+		if gamestate.moveCount / #gamestate.inputs < transitionPercentage then
+			gamestate:forward()
+		end
+		if transitionPercentage > 1.05 then
+			transitionPercentage = 0
+			finale = 4
+		end
+	elseif finale == 4 then
+		if transitionPercentage < 1 then
+			transitionPercentage = bib.lerp(transitionPercentage, tCap, dt * tCap)
+		else
+			transitionPercentage = transitionPercentage + dt
 		end
 	end
 	if popup.duration > 0 then
@@ -189,19 +225,33 @@ local function drawGamestate(gamestate, shiftScreen, skipFirst)
 	local paddingH = (sh - (lines) * gridSize * scale - scale * gridSize / 9) / (8 / lines)
 	local transitionPercentageCapped = math.min(transitionPercentage, 1)
 	local transitionShift = -(sw / 2 - paddingW * 2) * (transitionPercentageCapped)
-	if transitionShift > 0 then
-		transitionShift = 0
-	end
-	if shiftScreen then
-		transitionShift = transitionShift + (sw / 2 - paddingW * 2)
-	elseif gamestate.depth == 0 then
-		transitionShift = transitionShift / 2 + sw / 4 - paddingW
+	local transitionShiftY = 0
+	if finale == 0 or gamestate.level == 15 then
+		if transitionShift > 0 then
+			transitionShift = 0
+		end
+		if shiftScreen then
+			transitionShift = transitionShift + (sw / 2 - paddingW * 2)
+		elseif gamestate.depth == 0 then
+			transitionShift = transitionShift / 2 + sw / 4 - paddingW
+		end
+	elseif finale == 1 then
+		return
+	else
+		local p = 0
+		if finale == 2 then
+			p = 1 - transitionPercentageCapped
+		end
+		skipFirst = false
+		scale = 1 + 2 * p
+		transitionShift = -1816 * p
+		transitionShiftY = -916 * p
 	end
 	for i, grid in ipairs(grids) do
 		if not (skipFirst and i == 1) then
 			grid:draw(((i - 1) % wrap) * gridSize * scale + paddingW +
 				transitionShift,
-				(math.floor((i - 1) / wrap)) * gridSize * scale + paddingH,
+				(math.floor((i - 1) / wrap)) * gridSize * scale + paddingH + transitionShiftY,
 				scale)
 		end
 	end
@@ -216,6 +266,7 @@ function love.draw()
 	love.graphics.setCanvas(mainCanvas)
 	love.graphics.clear()
 	love.graphics.setColor(1, 1, 1, 1)
+
 	love.graphics.draw(bounceCanvas, 0, 0)
 	drawGamestate(gamestate, false)
 	if transitionState then
@@ -232,6 +283,17 @@ function love.draw()
 	love.graphics.setBlendMode("alpha")
 	keyPreview:draw(gamestate)
 	love.graphics.setColor(1, 1, 1, 1)
+	if finale == 4 then
+		local opacity = bib.clamp(0, transitionPercentage, 1)
+		love.graphics.setColor(18 / 256, 32 / 256, 32 / 256, opacity)
+		love.graphics.rectangle("fill", 0, 0, sw, sh)
+		love.graphics.setColor(0.97, 0.96, 0.98, opacity)
+		love.graphics.printf("The Perfect Sequence", font, 0, 50, sw * 2, "center", 0, 0.5, 0.5)
+		credits(transitionPercentage - 1, font)
+		if transitionPercentage > 12 then
+			love.graphics.printf(" Thank You For Playing!", font, 0, 520, sw * 2, "center", 0, 0.5, 0.5)
+		end
+	end
 	love.graphics.setCanvas(bounceCanvas)
 	love.graphics.setBlendMode("alpha", "premultiplied")
 	if enableShaders then
@@ -244,6 +306,7 @@ function love.draw()
 	end
 	love.graphics.draw(bounceCanvas)
 	love.graphics.setCanvas(bounceCanvas)
+	love.graphics.clear()
 	--enableShaders? nah always
 	vignette:send("opacity", 0.3)
 	love.graphics.setShader(vignette)
@@ -292,21 +355,31 @@ end
 ---@diagnostic disable-next-line: duplicate-set-field
 function love.keypressed(key, _, isRepeat)
 	local directionName = bib.dirVec(key)
-	if not transitionState then
+	if not transitionState and finale == 0 then
 		if not isRepeat or keyCooldownKey ~= key or keyCooldown == 0 then
 			if directionName then
 				if gamestate:step(directionName, true) then
 					sounds.levelComplete:play()
-					local newDepth = gamestate.depth
-					if newDepth == 0 then newDepth = 1 end
-					transitionState = Gamestate.new(gamestate.level + 1, newDepth)
-					transitionState.inputs = gamestate.inputs
-					transitionState.moveCount = 0
-					popup.next = gamestate.level .. "/15"
-					popup.nextDuration = 2
-					transitionPercentage = -0.5
-					if gamestate.depth > 0 then
-						gamestate.lockFirst = true
+					if gamestate.level < 15 then
+						local newDepth = gamestate.depth
+						if newDepth == 0 then newDepth = 1 end
+						transitionState = Gamestate.new(gamestate.level + 1, newDepth)
+						transitionState.inputs = gamestate.inputs
+						transitionState.moveCount = 0
+						popup.next = gamestate.level .. "/15"
+						popup.nextDuration = 2
+						transitionPercentage = -0.5
+						if gamestate.depth > 0 then
+							gamestate.lockFirst = true
+						end
+					else
+						transitionState = Gamestate.new(0, 0, { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 })
+						transitionState.inputs = solution
+						transitionState.moveCount = 0
+						finale = 1
+						popup.next = "15/15"
+						popup.Duration = 2
+						transitionPercentage = -0.5
 					end
 				end
 			elseif key == "e" or (key == "y" and love.keyboard.isDown("lctrl")) or (key == "z" and love.keyboard.isDown("lctrl") and love.keyboard.isDown("lshift")) then
