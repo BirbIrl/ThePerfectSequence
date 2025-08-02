@@ -46,9 +46,9 @@ return {
 				love.graphics.setColor(0, 0, 0, 0)
 			elseif self.type == "ground" then
 				image = sprites.ground
-				r = math.rad(love.math.random(0, 4) * 90)
+				--r = math.rad(love.math.random(0, 4) * 90)
 			elseif self.type == "wall" then
-				love.graphics.setColor(colors.list["Brown Red"])
+				image = sprites.wall
 			end
 			love.graphics.push()
 			love.graphics.translate(pos.x + 8, pos.y + 8)

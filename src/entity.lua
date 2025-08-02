@@ -204,6 +204,8 @@ return {
 				image = self.data.eyes
 			elseif self.type == "box" then
 				image = sprites.box
+			elseif self.type == "glass" then
+				image = sprites.glass
 			end
 			if image then
 				love.graphics.draw(image, pos.x, pos.y)

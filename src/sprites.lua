@@ -24,5 +24,7 @@ return {
 		}
 	},
 	box = l(s .. "box.png"),
+	glass = l(s .. "glass.png"),
+	wall = l(s .. "wall.png"),
 	ground = l(s .. "ground.png"),
 }
