@@ -19,7 +19,8 @@ return {
 			grids = {
 			},
 			---@type {id: integer, status: boolean, step: integer}[]
-			results = {}
+			results = {},
+			lockFirst = false
 		}
 		function gamestate:reload()
 			local grids = {}
@@ -32,8 +33,11 @@ return {
 				grids[#grids + 1] = Loader:load(i)
 			end
 			for i, grid in ipairs(self.grids) do
-				grids[i].beenDead = grid.beenDead
+				if grid then
+					grids[i].beenDead = grid.beenDead
+				end
 			end
+			if self.lockFirst then grids[1] = gamestate.grids[1] end
 			gamestate.grids = grids
 			gamestate.results = {}
 		end
@@ -84,20 +88,11 @@ return {
 			if self.level > 0 then
 				for i = 1, self.depth + 1, 1 do
 					local status = gamestate:status()[i]
-					print(#self.grids)
-					print(self.level, i)
-					sprint(status)
 					if not (status and status.state == "success") then
 						return false
 					end
 				end
-				if self.level == 1 then
-					self.depth = 1
-				end
-				self.level = self.level + 1
-				gamestate:reload()
-				self.moveCount = 0
-				gamestate:moveToInput(self.moveCount)
+				return true
 			end
 		end
 
@@ -117,10 +112,12 @@ return {
 		end
 
 		function gamestate:setPlayerFace(face)
-			for _, grid in ipairs(self.grids) do
-				local player = grid:find("player")[1]
-				if player then
-					player.data.eyes = face
+			for i, grid in ipairs(self.grids) do
+				if not (self.lockFirst and i == 1) then
+					local player = grid:find("player")[1]
+					if player then
+						player.data.eyes = face
+					end
 				end
 			end
 		end
@@ -175,7 +172,6 @@ return {
 			---@type directions[][]
 			local toTry = { bib.shallowCopy(oldInputs) }
 			while toTry[1] do
-				sprint(toTry)
 				local inputs = toTry[1]
 				local inputCount = #inputs
 				gamestate:reload()

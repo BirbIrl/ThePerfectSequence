@@ -13,6 +13,7 @@ local sprites = require "sprites"
 local entity = require "entity"
 local vec = require "lib.vector"
 local keyPreview = require "keyPreview"
+local font = love.graphics.newFont
 --- DEV ZONE ---
 --- levels named [number].lua are loaded from the `./levels/` folder, you can load the chosen one using the number below
 --- the level live-updates when you save it's file, and reloads the game replaying all inputs to reach the same point you're in
@@ -32,6 +33,9 @@ function love.load()
 	sh = 640 --love.graphics.getHeight()
 	gamestate = Gamestate.new(level, depth, extra)
 	mainCanvas = love.graphics.newCanvas(sw, sh)
+	transitionState = nil
+	transitionPercentage = 0
+	transitionDistance = sw / 2
 	bounceCanvas = love.graphics.newCanvas(sw, sh)
 
 	love.graphics.setDefaultFilter("nearest", "nearest")
@@ -55,6 +59,20 @@ function love.update(dt)
 	keyPreview:update(gamestate, dt)
 	chroma:send("elapsed", love.timer.getTime())
 	scan:send("phase", love.timer.getTime())
+	local tCap = 1.2
+	if transitionState then
+		if transitionPercentage < tCap then
+			transitionPercentage = bib.lerp(transitionPercentage, tCap, dt * tCap)
+			if gamestate.moveCount / #gamestate.inputs > 1 - transitionPercentage then
+				gamestate:backwards()
+			end
+			if transitionPercentage > tCap * 0.9 then
+				transitionPercentage = 0
+				gamestate = transitionState
+				transitionState = nil
+			end
+		end
+	end
 	--print(timer)
 end
 
@@ -71,21 +89,12 @@ function lurker.postswap(file)
 	end
 end
 
----@diagnostic disable-next-line: duplicate-set-field
-function love.draw()
-	love.graphics.setCanvas(bounceCanvas)
-	love.graphics.setBlendMode("alpha")
-	love.graphics.setColor(18 / 256, 32 / 256, 32 / 256)
-	love.graphics.rectangle("fill", 0, 0, sw, sh)
-	love.graphics.setCanvas(mainCanvas)
-	love.graphics.clear()
-	love.graphics.setColor(1, 1, 1, 1)
-	love.graphics.draw(bounceCanvas, 0, 0)
+local function drawGamestate(gamestate, shiftScreen, skipFirst)
 	local gridCount = #gamestate.grids
 	local scale
 	local wrap
 	local lines
-	if gridCount == 1 then
+	if gridCount == 1 and not transitionState then
 		scale = 3
 		wrap = 1
 		lines = 1
@@ -106,11 +115,55 @@ function love.draw()
 	local gridSize = grids[1].size
 	local paddingW = (sw - (wrap) * gridSize * scale - scale * gridSize / 9) / 2
 	local paddingH = (sh - (lines) * gridSize * scale - scale * gridSize / 9) / (8 / lines)
-	for i, grid in ipairs(grids) do
-		grid:draw(((i - 1) % wrap) * gridSize * scale + paddingW,
-			(math.floor((i - 1) / wrap)) * gridSize * scale + paddingH,
-			scale)
+	local transitionPercentageCapped = math.min(transitionPercentage, 1)
+	local transitionShift = -(sw / 2 - paddingW * 2) * (transitionPercentageCapped)
+	if transitionShift > 0 then
+		transitionShift = 0
 	end
+	if shiftScreen then
+		transitionShift = transitionShift + (sw / 2 - paddingW * 2)
+	end
+	for i, grid in ipairs(grids) do
+		if not (skipFirst and i == 1) then
+			grid:draw(((i - 1) % wrap) * gridSize * scale + paddingW +
+				transitionShift,
+				(math.floor((i - 1) / wrap)) * gridSize * scale + paddingH,
+				scale)
+		end
+	end
+	love.graphics.setColor(1, 1, 1, 1)
+end
+---@diagnostic disable-next-line: duplicate-set-field
+function love.draw()
+	love.graphics.setCanvas(bounceCanvas)
+	love.graphics.setBlendMode("alpha")
+	love.graphics.setColor(18 / 256, 32 / 256, 32 / 256)
+	love.graphics.rectangle("fill", 0, 0, sw, sh)
+	love.graphics.setCanvas(mainCanvas)
+	love.graphics.clear()
+	love.graphics.setColor(1, 1, 1, 1)
+	love.graphics.draw(bounceCanvas, 0, 0)
+	drawGamestate(gamestate, false)
+	if transitionState then
+		drawGamestate(transitionState, true, true)
+	end
+	--
+	love.graphics.setBlendMode("alpha")
+	keyPreview:draw(gamestate)
+	love.graphics.setColor(1, 1, 1, 1)
+	love.graphics.setCanvas(bounceCanvas)
+	love.graphics.setBlendMode("alpha", "premultiplied")
+	love.graphics.setShader(chroma)
+	love.graphics.draw(mainCanvas)
+	love.graphics.setCanvas()
+	love.graphics.setShader(scan)
+	love.graphics.draw(bounceCanvas)
+	chroma:send("alphaStuff", true)
+	love.graphics.setShader(chroma)
+	love.graphics.draw(sprites.ui.frame, 0, 0, 0, 2, 2)
+	chroma:send("alphaStuff", false)
+	love.graphics.setBlendMode("alpha")
+	love.graphics.setShader()
 	local message =
 	{ { 1, 1, 1, 1 }, "FPS: " .. love.timer.getFPS() ..
 	"\nUse q/e to go back/forward in time, shift+q/e to go to the beginning/end of a set of inputs and r to hard restart\nUse: ctrl+c/ctrl+v to copy inputs to clipboard\nThe game reloads and replays your inputs whenver you update a level file, open up your editor with any levels/[num].lua file on another monitor\nCheck main.lua for level selection" }
@@ -134,68 +187,64 @@ function love.draw()
 	end
 	local x = 10
 	local y = 10 + sh
-	love.graphics.setBlendMode("alpha")
-	keyPreview:draw(gamestate)
-	love.graphics.setColor(1, 1, 1, 1)
+
 	love.graphics.printf(message, x, y, love.graphics.getWidth() - x, "left")
-	love.graphics.setCanvas(bounceCanvas)
-	love.graphics.setBlendMode("alpha", "premultiplied")
-	love.graphics.setShader(chroma)
-	love.graphics.draw(mainCanvas)
-	love.graphics.setCanvas()
-	love.graphics.setShader(scan)
-	love.graphics.draw(bounceCanvas)
-	chroma:send("alphaStuff", true)
-	love.graphics.setShader(chroma)
-	love.graphics.draw(sprites.ui.frame, 0, 0, 0, 2, 2)
-	chroma:send("alphaStuff", false)
-	love.graphics.setShader()
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
 function love.keypressed(key, _, isRepeat)
 	local directionName = bib.dirVec(key)
-	if not isRepeat or keyCooldownKey ~= key or keyCooldown == 0 then
-		if directionName then
-			gamestate:step(directionName, true)
-		elseif key == "e" or (key == "y" and love.keyboard.isDown("lctrl")) or (key == "z" and love.keyboard.isDown("lctrl") and love.keyboard.isDown("lshift")) then
-			gamestate:forward()
-		elseif key == "q" or key == "backspace" or (key == "z" and love.keyboard.isDown("lctrl")) then
-			gamestate:backwards()
-		end
+	if not transitionState then
+		if not isRepeat or keyCooldownKey ~= key or keyCooldown == 0 then
+			if directionName then
+				if gamestate:step(directionName, true) then
+					local newDepth = gamestate.depth
+					if newDepth == 0 then newDepth = 1 end
+					transitionState = Gamestate.new(gamestate.level + 1, newDepth)
+					transitionState.inputs = gamestate.inputs
+					transitionState.moveCount = 0
+					transitionPercentage = -0.5
+					gamestate.lockFirst = true
+				end
+			elseif key == "e" or (key == "y" and love.keyboard.isDown("lctrl")) or (key == "z" and love.keyboard.isDown("lctrl") and love.keyboard.isDown("lshift")) then
+				gamestate:forward()
+			elseif key == "q" or key == "backspace" or (key == "z" and love.keyboard.isDown("lctrl")) then
+				gamestate:backwards()
+			end
 
-		keyCooldown = 0.08
-		keyCooldownKey = key
-	end
-	if not isRepeat then
-		if key == "e" and love.keyboard.isDown("lshift") then
-			gamestate:moveToInput(#gamestate.inputs)
-			gamestate.moveCount = #gamestate.inputs
-		elseif key == "q" and love.keyboard.isDown("lshift") then
-			gamestate:moveToInput(0)
-			gamestate.moveCount = 0
-		elseif key == "c" and love.keyboard.isDown("lctrl") then
-			love.system.setClipboardText(serpent.serialize(gamestate.inputs,
-				{ nocode = true, sparse = true, comment = false, }))
-		elseif key == "v" and love.keyboard.isDown("lctrl") then
-			local worked, inputs = serpent.load("return " .. love.system.getClipboardText())
-			if worked then
-				gamestate.inputs = inputs
-				gamestate.moveCount = #inputs
+			keyCooldown = 0.08
+			keyCooldownKey = key
+		end
+		if not isRepeat then
+			if key == "e" and love.keyboard.isDown("lshift") then
+				gamestate:moveToInput(#gamestate.inputs)
+				gamestate.moveCount = #gamestate.inputs
+			elseif key == "q" and love.keyboard.isDown("lshift") then
+				gamestate:moveToInput(0)
+				gamestate.moveCount = 0
+			elseif key == "c" and love.keyboard.isDown("lctrl") then
+				love.system.setClipboardText(serpent.serialize(gamestate.inputs,
+					{ nocode = true, sparse = true, comment = false, }))
+			elseif key == "v" and love.keyboard.isDown("lctrl") then
+				local worked, inputs = serpent.load("return " .. love.system.getClipboardText())
+				if worked then
+					gamestate.inputs = inputs
+					gamestate.moveCount = #inputs
+					gamestate:restart()
+				end
+			elseif key == "r" and love.keyboard.isDown("lshift") then
+				lurker.hotswapfile("main.lua")
+				gamestate:restart(true)
+			elseif key == "r" then
+				lurker.hotswapfile("main.lua")
+				gamestate.moveCount = 0
 				gamestate:restart()
 			end
-		elseif key == "r" and love.keyboard.isDown("lshift") then
-			lurker.hotswapfile("main.lua")
-			gamestate:restart(true)
-		elseif key == "r" then
-			lurker.hotswapfile("main.lua")
-			gamestate.moveCount = 0
-			gamestate:restart()
 		end
-	end
-	if checks then
-		checks.inputs = gamestate.inputs
-		checks.moveCount = #gamestate.inputs
-		checks:moveToInput(gamestate.moveCount)
+		if checks then
+			checks.inputs = gamestate.inputs
+			checks.moveCount = #gamestate.inputs
+			checks:moveToInput(gamestate.moveCount)
+		end
 	end
 end
