@@ -49,7 +49,8 @@ return {
 		end
 
 		function tile:draw(filter)
-			love.math.setRandomSeed(pos.x * 1000, pos.y)
+			local rand = love.math.newRandomGenerator()
+			rand:setSeed(pos.x * 1000, pos.y)
 			local image
 			local r = 0
 			local pos = self.pos * 16
@@ -97,7 +98,7 @@ return {
 						end
 						love.graphics.setColor(1, 1, 1, 1)
 						love.graphics.draw(sprites.wall.down, pos.x, pos.y)
-						love.graphics.draw(sprites.wall.chisel[love.math.random(1, 2)], pos.x, pos.y)
+						love.graphics.draw(sprites.wall.chisel[rand:random(1, 2)], pos.x, pos.y)
 					end
 					if dotheline then
 						love.graphics.setColor(0, 0, 0, 1)
@@ -110,7 +111,7 @@ return {
 			elseif self.type == "ground" then
 				love.graphics.setColor(0.7, 0.7, 0.7, 1)
 				image = sprites.ground
-				r = math.rad(love.math.random(0, 4) * 90)
+				r = math.rad(rand:random(0, 4) * 90)
 			end
 			love.graphics.push()
 			love.graphics.translate(pos.x + 8, pos.y + 8)

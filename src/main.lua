@@ -142,7 +142,10 @@ function love.update(dt)
 		end
 	end
 	for _, sound in ipairs(sounds) do
-		sound:clone():play()
+		---@type love.Source
+		local toplay = sound:clone()
+		toplay:setPitch(1 - (love.math.random() - 0.5) / 8)
+		toplay:play()
 	end
 end
 
