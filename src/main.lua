@@ -5,15 +5,24 @@ function sprint(table)
 	print(serpent.block(table))
 end
 
+--TODO:
+--music
+--wall texture
+--endgame
+--rewind shader
+--boot on/off
+--sound
+--itch.io page, windows build
 Loader = require "loader"
 local Gamestate = require("gamestate")
 local bib = require "lib.biblib"
 local colors = require "lib.colors"
-local sprites = require "sprites"
+local sprites = require "assetIndex".sprites
 local entity = require "entity"
 local vec = require "lib.vector"
 local keyPreview = require "keyPreview"
 local font = love.graphics.newFont("assets/fonts/TerminessNerdFont-Bold.ttf", 128)
+local song = require "assetIndex".songs.stuck
 --- DEV ZONE ---
 --- levels named [number].lua are loaded from the `./levels/` folder, you can load the chosen one using the number below
 --- the level live-updates when you save it's file, and reloads the game replaying all inputs to reach the same point you're in
@@ -47,8 +56,15 @@ function love.load()
 		nextDuration = 0
 	}
 
+
 	love.graphics.setDefaultFilter("nearest", "nearest")
 	love.keyboard.setKeyRepeat(true)
+
+	song:setLooping(true)
+	local loopStart = 20 - 1
+	loopEnd = song:getDuration("seconds") - 1.2732
+	loopLength = loopEnd - loopStart
+	song:play()
 end
 
 local keyCooldown = 0
@@ -56,6 +72,10 @@ local keyCooldown = 0
 local keyCooldownKey = nil
 local timer = 0
 function love.update(dt)
+	local now = song:tell("seconds")
+	if (now >= loopEnd) then
+		song:seek(song:tell("seconds") - loopLength, "seconds")
+	end
 	if keyCooldown > 0 then
 		keyCooldown = keyCooldown - dt
 		if keyCooldown < 0 then
@@ -95,6 +115,19 @@ function love.update(dt)
 		popup.duration = popup.nextDuration
 		popup.next = nil
 		popup.nxtDuration = nil
+	end
+	---soundsworks (i sure hope it does)
+	for _, grid in ipairs(gamestate.grids) do
+		for _, row in ipairs(grid.tiles) do
+			for _, tile in ipairs(row) do
+				for _, ent in ipairs(tile.entities) do
+					if ent.sound then
+						ent.sound:clone():play()
+						ent.sound = nil
+					end
+				end
+			end
+		end
 	end
 end
 

@@ -1,4 +1,4 @@
-local sprites = require "sprites"
+local sprites = require "assetIndex".sprites
 local bib = require "lib.biblib"
 local vec = require "lib.vector"
 local preview = {
@@ -12,7 +12,7 @@ local preview = {
 local glow = love.graphics.newShader("assets/shaders/glow.vert")
 glow:send("alpha", 1)
 
-for i = 1, 64, 1 do
+for i = 1, 16, 1 do
 	preview.seeds[i] = (love.math.random() + 0.25) * bib.sign(love.math.random() - 0.5)
 end
 
@@ -20,7 +20,7 @@ end
 function preview:getDrift(id)
 	local speed = 1.5
 	local magnitude = 0.05
-	local seed = self.seeds[id]
+	local seed = self.seeds[id % 16 + 1]
 	local x = math.sin(self.time * speed * seed + seed * 9) * (magnitude)
 	local y = math.cos(self.time * speed * seed + seed * 9) * (magnitude)
 	return vec.new(x, y)

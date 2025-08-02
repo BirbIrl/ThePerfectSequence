@@ -2,7 +2,9 @@
 local colors = require "lib.colors"
 local vec = require "lib.vector"
 local bib = require "lib.biblib"
-local sprites = require "sprites"
+local assets = require "assetIndex"
+local sprites = assets.sprites
+local sounds = assets.sounds
 local tween = require "lib.tween"
 return {
 	---@param tile Tile.lua
@@ -18,7 +20,9 @@ return {
 			data = data,
 			destroyed = false,
 			---@type Tween.lua[]
-			anims = {}
+			anims = {},
+			---@type love.Source?
+			sound = nil
 		}
 
 
@@ -34,6 +38,8 @@ return {
 			local scaleAmount = 0.5
 			if self.type == "glass" then
 				scaleAmount = 0.9
+			else
+				self.sound = sounds.die
 			end
 			self.anims[#self.anims + 1] = tween.new(duration,
 				{ type = "scale", amount = 1 }, { amount = scaleAmount }, "outCubic")

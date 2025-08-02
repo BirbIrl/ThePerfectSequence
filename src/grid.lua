@@ -1,7 +1,7 @@
 local tile = require "tile"
 local vec = require "lib.vector"
 local bib = require "lib.biblib"
-local sprites = require "sprites"
+local sprites = require "assetIndex".sprites
 return {
 	---@param preset Level.lua
 	new = function(id)

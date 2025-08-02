@@ -1,6 +1,6 @@
 local Grid = require "grid"
 local bib = require "lib.biblib"
-local sprites = require "sprites"
+local sprites = require "assetIndex".sprites
 return {
 	---@param level integer
 	---@param depth integer
@@ -146,6 +146,7 @@ return {
 					for _, tile in ipairs(row) do
 						for _, entity in ipairs(tile.entities) do
 							entity.anims = {}
+							entity.sound = nil
 						end
 					end
 				end

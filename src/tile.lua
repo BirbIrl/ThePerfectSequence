@@ -1,7 +1,7 @@
 ---@alias tileTypes "void"|"ground"|"wall"
 local colors = require "lib.colors"
 local bib = require "lib.biblib"
-local sprites = require "sprites"
+local sprites = require "assetIndex".sprites
 return {
 	---@param grid Grid.lua
 	---@return Tile.lua
@@ -47,6 +47,7 @@ return {
 			elseif self.type == "ground" then
 				image = sprites.ground
 				r = math.rad(love.math.random(0, 4) * 90)
+				love.graphics.draw(sprites.groundfade, pos.x, pos.y + 16)
 			elseif self.type == "wall" then
 				image = sprites.wall
 			end
