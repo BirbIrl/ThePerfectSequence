@@ -36,6 +36,7 @@ return {
 			local scaleAmount = 0.5
 			if self.type == "glass" then
 				scaleAmount = 0.9
+				self.sound = sounds.falltile
 			elseif self.type == "player" or self.type == "box" then
 				self.sound = sounds.die
 			end
@@ -98,12 +99,14 @@ return {
 					self:destroy(2)
 				elseif targetTile.type == "wall" or (self.type == "box" and targetTile:findEntities("box")[1]) then
 					self:bump(self.tile.pos - targetTile.pos)
+					self.sound = sounds.bump
 					return true
 				end
 				local box = targetTile:findEntities("box")[1]
 				if self.type == "player" and box then
 					box:move(box.tile.pos - self.tile.pos)
 					self:bump(self.tile.pos - targetTile.pos)
+					self.sound = sounds.bump
 					return true
 				end
 				anims = { tween.new(animDuration,

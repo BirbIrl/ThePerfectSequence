@@ -57,6 +57,7 @@ return {
 		clear = a(so .. "clear.ogg", "static"),
 		bump = a(so .. "bump.ogg", "static"),
 		walk = a(so .. "walk.ogg", "static"),
+		falltile = a(so .. "falltile.ogg", "static"),
 	},
 	songs = {
 		stuck = a("assets/songs/stuck.ogg", "stream")
