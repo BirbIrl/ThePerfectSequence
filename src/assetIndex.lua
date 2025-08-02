@@ -2,6 +2,7 @@ local s = "assets/sprites/"
 local so = "assets/sounds/"
 local p = s .. "player/"
 local k = s .. "key/"
+local w = s .. "wall/"
 local i = love.graphics.newImage
 local a = love.audio.newSource
 return {
@@ -28,9 +29,19 @@ return {
 				down = i(k .. "down.png"),
 			}
 		},
+		wall = {
+			base   = i(w .. "base.png"),
+			right  = i(w .. "right.png"),
+			left   = i(w .. "left.png"),
+			up     = i(w .. "up.png"),
+			down   = i(w .. "down.png"),
+			chisel = {
+				i(w .. "chisel1.png"),
+				i(w .. "chisel2.png"),
+			}
+		},
 		box = i(s .. "box.png"),
 		glass = i(s .. "glass.png"),
-		wall = i(s .. "wall.png"),
 		ground = i(s .. "ground.png"),
 		groundfade = i(s .. "groundfade.png"),
 	},

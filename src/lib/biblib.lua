@@ -1,22 +1,23 @@
 ---@alias directions "up"|"down"|"left"|"right"|"w"|"s"|"a"|"d"
 local vec = require("lib.vector")
 local biblib = {
-	---@param direction directions
+	directions = { vec.new(1, 0), vec.new(-1, 0), vec.new(0, 1), vec.new(0, -1) },
+	---@param direction directions | Vector.lua
 	---@return "up"|"down"|"left"|"right"
 	---@return Vector.lua
 	dirVec = function(direction)
 		local name
 		local vector
-		if direction == "up" or direction == "w" then
+		if direction == vec.new(0, -1) or direction == "up" or direction == "w" then
 			name = "up"
 			vector = vec.new(0, -1)
-		elseif direction == "down" or direction == "s" then
+		elseif direction == vec.new(0, 1) or direction == "down" or direction == "s" then
 			name = "down"
 			vector = vec.new(0, 1)
-		elseif direction == "left" or direction == "a" then
+		elseif direction == vec.new(-1, 0) or direction == "left" or direction == "a" then
 			name = "left"
 			vector = vec.new(-1, 0)
-		elseif direction == "right" or direction == "d" then
+		elseif direction == vec.new(1, 0) or direction == "right" or direction == "d" then
 			name = "right"
 			vector = vec.new(1, 0)
 		end
@@ -46,6 +47,23 @@ local biblib = {
 	end,
 	lerp = function(a, b, t) return a * (1 - t) + b * t end
 }
+function biblib.cookieCutter(source, form, out)
+	out = out or false
+	local result = {}
+	for i, v1 in pairs(source) do
+		local hit = false
+		for _, v2 in pairs(form) do
+			if v1 == v2 then
+				hit = true
+				break
+			end
+		end
+		if hit == out then
+			result[#result + 1] = v1
+		end
+	end
+	return result
+end
 
 function biblib.equals(a, b)
 	if type(a) ~= type(b) then

@@ -109,9 +109,22 @@ return {
 			love.graphics.translate(-16, -16)
 			love.graphics.clear()
 			love.graphics.setLineWidth(1)
+
+			for x, row in ipairs(self.tiles) do
+				for y, tile in ipairs(row) do
+					tile:draw("fade")
+					love.graphics.setColor(1, 1, 1, 1)
+				end
+			end
 			for x, row in ipairs(self.tiles) do
 				for y, tile in ipairs(row) do
 					tile:draw()
+					love.graphics.setColor(1, 1, 1, 1)
+				end
+			end
+			for x, row in ipairs(self.tiles) do
+				for y, tile in ipairs(row) do
+					tile:draw("wall")
 					love.graphics.setColor(1, 1, 1, 1)
 				end
 			end

@@ -17,12 +17,13 @@ Loader = require "loader"
 local Gamestate = require("gamestate")
 local bib = require "lib.biblib"
 local colors = require "lib.colors"
-local sprites = require "assetIndex".sprites
+sprites = require "assetIndex".sprites
 local entity = require "entity"
 local vec = require "lib.vector"
 local keyPreview = require "keyPreview"
 local font = love.graphics.newFont("assets/fonts/TerminessNerdFont-Bold.ttf", 128)
 local song = require "assetIndex".songs.stuck
+local enableShaders = true
 --- DEV ZONE ---
 --- levels named [number].lua are loaded from the `./levels/` folder, you can load the chosen one using the number below
 --- the level live-updates when you save it's file, and reloads the game replaying all inputs to reach the same point you're in
@@ -59,12 +60,14 @@ function love.load()
 
 	love.graphics.setDefaultFilter("nearest", "nearest")
 	love.keyboard.setKeyRepeat(true)
+	love.graphics.setLineStyle("rough")
 
 	song:setLooping(true)
 	local loopStart = 20 - 1
 	loopEnd = song:getDuration("seconds") - 1.2732
 	loopLength = loopEnd - loopStart
 	song:play()
+	song:setVolume(0.8)
 end
 
 local keyCooldown = 0
@@ -216,13 +219,19 @@ function love.draw()
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.setCanvas(bounceCanvas)
 	love.graphics.setBlendMode("alpha", "premultiplied")
-	love.graphics.setShader(chroma)
+	if enableShaders then
+		love.graphics.setShader(chroma)
+	end
 	love.graphics.draw(mainCanvas)
 	love.graphics.setCanvas()
-	love.graphics.setShader(scan)
+	if enableShaders then
+		love.graphics.setShader(scan)
+	end
 	love.graphics.draw(bounceCanvas)
 	chroma:send("alphaStuff", true)
-	love.graphics.setShader(chroma)
+	if enableShaders then
+		love.graphics.setShader(chroma)
+	end
 	love.graphics.draw(sprites.ui.frame, 0, 0, 0, 2, 2)
 	chroma:send("alphaStuff", false)
 	love.graphics.setBlendMode("alpha")
