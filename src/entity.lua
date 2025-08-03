@@ -34,10 +34,10 @@ return {
 			self.anims[#self.anims + 1] = tween.new(duration,
 				{ type = "opacity", amount = 1 }, { amount = 0 }, "outCubic")
 			local scaleAmount = 0.5
-			if self.type == "glass" then
+			if self.type == "glass" or self.type == "box" then
 				scaleAmount = 0.9
 				self.sound = sounds.falltile
-			elseif self.type == "player" or self.type == "box" then
+			elseif self.type == "player" then
 				self.sound = sounds.die
 			end
 			self.anims[#self.anims + 1] = tween.new(duration,
@@ -208,21 +208,7 @@ return {
 					end
 				end
 			end
-			local image = nil
-			if self.type == "glass" then
-				love.graphics.setColor(colors.blend(colors.list["Sky Blue"], { nil, nil, nil, 0.2 }, 1))
-			elseif self.type == "exit" then
-				love.graphics.setColor(colors.list["Blue"])
-			elseif self.type == "sensor" then
-				if self.data.triggered then
-					love.graphics.setColor(colors.list["Banana Yellow"])
-				else
-					love.graphics.setColor(colors.list["Yellow Brown"])
-				end
-			end
-			local color = { love.graphics.getColor() }
-			color[4] = color[4] * opacity
-			love.graphics.setColor(color)
+			love.graphics.setColor(1, 1, 1, opacity)
 			love.graphics.push()
 			love.graphics.translate(8, 8)
 			love.graphics.scale(scale, scale)
@@ -231,12 +217,29 @@ return {
 			pos.x = math.floor(pos.x)
 			pos.y = math.floor(pos.y)
 			if self.type == "player" then
+				love.graphics.translate(0, -4)
 				love.graphics.draw(sprites.player.body, pos.x, pos.y)
-				image = self.data.eyes
+				love.graphics.draw(self.data.eyes, pos.x, pos.y)
 			elseif self.type == "box" then
-				image = sprites.box
+				love.graphics.translate(0, -5)
+				love.graphics.draw(sprites.box, pos.x, pos.y)
+				if self.tile:findEntities("exit")[1] then
+					love.graphics.setColor(0.2, 0.8, 0.2, opacity)
+				else
+					love.graphics.setColor(0.6, 0.15, 0.15, opacity)
+				end
+				love.graphics.draw(sprites.boxRim, pos.x, pos.y)
+			elseif self.type == "exit" then
+				love.graphics.draw(sprites.exit, pos.x, pos.y)
+				if self.tile:findEntities("box")[1] then
+					love.graphics.setColor(0.2, 0.8, 0.2, opacity)
+				else
+					love.graphics.setColor(0.6, 0.15, 0.15, opacity)
+				end
+				love.graphics.draw(sprites.exitRim, pos.x, pos.y)
 			elseif self.type == "glass" then
-				image = sprites.glass
+				love.graphics.setColor(colors.blend(colors.list["Sky Blue"], { nil, nil, nil, opacity * 0.2 }, 1))
+				love.graphics.draw(sprites.glass, pos.x, pos.y)
 			elseif self.type == "teleporter" then
 				love.graphics.draw(sprites.teleporter.base, pos.x, pos.y)
 				local occupied = self.tile:findEntities("player")[1] or self.tile:findEntities("box")[1]
@@ -249,24 +252,21 @@ return {
 					end
 					local linkedTele = self.tile.grid:find("teleporter", { link = targetLink })[1]
 					if linkedTele then
-						occupied = linkedTele.tile:findEntities("player")[1] or linkedTele.tile:findEntities("box")[1]
+						if linkedTele.destroyed then
+							occupied = nil
+						else
+							occupied = linkedTele.tile:findEntities("player")[1] or
+								linkedTele.tile:findEntities("box")[1]
+						end
 					end
 				end
 				if occupied then
-					love.graphics.setColor(0.5, 0.5, 0.5, 1)
+					love.graphics.setColor(0.5, 0.5, 0.5, opacity)
 				end
-
-				image = sprites.teleporter[math.ceil(self.data.link / 2)]
-			end
-			if image then
-				love.graphics.draw(image, pos.x, pos.y)
-			else
-				love.graphics.rectangle("fill", pos.x + 1, pos.y + 1, 16 - 2, 16 -
-					2)
+				love.graphics.draw(sprites.teleporter[math.ceil(self.data.link / 2)], pos.x, pos.y)
 			end
 			love.graphics.scale(1 / scale, 1 / scale)
 			love.graphics.pop()
-			love.graphics.setColor(1, 1, 1, 1)
 		end
 
 		entity:moveToTile(tile)

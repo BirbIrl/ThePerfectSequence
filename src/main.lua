@@ -34,7 +34,7 @@ local solution = { "up", "up", "left", "up", "right", "right", "right", "right",
 --- DEV ZONE ---
 --- levels named [number].lua are loaded from the `./levels/` folder, you can load the chosen one using the number below
 --- the level live-updates when you save it's file, and reloads the game replaying all inputs to reach the same point you're in
-local level = 15 -- which level to load?
+local level = 10 -- which level to load?
 local extra = {} -- levels you always want to be loaded as preview
 --local extra = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } -- millions must load
 ---
@@ -47,12 +47,10 @@ else
 end
 local finale = 0
 local chroma, scan, vignette
-if enableShaders then
-	chroma = love.graphics.newShader("assets/shaders/chroma.vert")
-	chroma:send("elapsed", love.timer.getTime())
-	scan = love.graphics.newShader("assets/shaders/scan.vert")
-	vignette = love.graphics.newShader("assets/shaders/vignette.vert")
-end
+chroma = love.graphics.newShader("assets/shaders/chroma.vert")
+chroma:send("elapsed", love.timer.getTime())
+scan = love.graphics.newShader("assets/shaders/scan.vert")
+vignette = love.graphics.newShader("assets/shaders/vignette.vert")
 function love.load()
 	sw = 960 --love.graphics.getWidth()
 	sh = 640 --love.graphics.getHeight()
@@ -306,6 +304,7 @@ function love.draw()
 	love.graphics.clear()
 	--enableShaders? nah always
 	if enableShaders then
+		vignette:send("opacity", 0.2)
 		love.graphics.setShader(vignette)
 	end
 	love.graphics.draw(mainCanvas)
@@ -360,6 +359,17 @@ end
 ---@diagnostic disable-next-line: duplicate-set-field
 function love.keypressed(key, _, isRepeat)
 	local directionName = bib.dirVec(key)
+
+	if not isRepeat then
+		if key == "=" then
+			love.audio.setVolume(math.min(love.audio.getVolume() + 0.1, 2))
+		elseif key == "-" then
+			love.audio.setVolume(math.max(love.audio.getVolume() - 0.1, 0))
+		elseif key == "s" and love.keyboard.isDown("lctrl") then
+			enableShaders = not enableShaders
+			return
+		end
+	end
 	if not transitionState and finale == 0 then
 		if not isRepeat or keyCooldownKey ~= key or keyCooldown == 0 then
 			if directionName then
@@ -420,14 +430,6 @@ function love.keypressed(key, _, isRepeat)
 				popup.Duration = 2
 				transitionPercentage = -0.5
 			end
-		end
-	end
-
-	if not isRepeat then
-		if key == "=" then
-			love.audio.setVolume(math.min(love.audio.getVolume() + 0.1, 2))
-		elseif key == "-" then
-			love.audio.setVolume(math.max(love.audio.getVolume() - 0.1, 0))
 		end
 	end
 end

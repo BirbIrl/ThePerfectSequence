@@ -7,7 +7,10 @@ zip -r ../build/ThePerfectSequence.love *
 cd ../web
 python build.py ../build/ThePerfectSequence.love ../docs
 echo "# This isn't actually the docs, this is the game, but github pages will only (realisitically) run from this folder without a headache so for now - good enough" > ../docs/README.md
+cd ../docs
+zip -r ThePerfectSequenceWeb.zip *
 cd ../build
+mv ../docs/ThePerfectSequenceWeb.zip .
 #windows
 cp -r ../windows ./ThePerfectSequence
 cat ./ThePerfectSequence/love.exe ./ThePerfectSequence.love > ./ThePerfectSequence/ThePerfectSequence.exe

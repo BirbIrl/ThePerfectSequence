@@ -60,6 +60,8 @@ return {
 				end
 				if self.type == "ground" then
 					love.graphics.setColor(0.7, 0.7, 0.7, 1)
+				else
+					love.graphics.setColor(0.75, 0.75, 0.75, 1)
 				end
 				love.graphics.draw(sprites.groundfade, pos.x, pos.y + 16)
 				image = nil
@@ -90,15 +92,15 @@ return {
 						lSta = lSta + vec.new(16, 0)
 						lEnd = lEnd + vec.new(16, 16)
 					else
+						love.graphics.setColor(1, 1, 1, 1)
+						love.graphics.draw(sprites.wall.down, pos.x, pos.y)
 						if self.grid:getTile(self.pos + vec.new(0, 1)).type == "ground" then
+							love.graphics.draw(sprites.wall.chisel[rand:random(1, 2)], pos.x, pos.y)
 							lSta = lSta + vec.new(0, 16)
 							lEnd = lEnd + vec.new(16, 16)
 						else
 							dotheline = false
 						end
-						love.graphics.setColor(1, 1, 1, 1)
-						love.graphics.draw(sprites.wall.down, pos.x, pos.y)
-						love.graphics.draw(sprites.wall.chisel[rand:random(1, 2)], pos.x, pos.y)
 					end
 					if dotheline then
 						love.graphics.setColor(0, 0, 0, 1)
