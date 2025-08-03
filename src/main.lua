@@ -1,15 +1,14 @@
 ---@diagnostic disable-next-line: lowercase-global
---lurker = require "lib.lurker"
 serpent = require "lib.serpent"
 function sprint(table)
 	print(serpent.block(table))
 end
 
 --TODO:
---rewind shader
---help screen
---itch.io page, windows build
 --sprites
+--help screen
+--fix redoing and not triggering a win
+--rewind shader
 enableShaders = true
 local assets = require("assetIndex")
 sprites = assets.sprites
@@ -111,7 +110,6 @@ function love.update(dt)
 			keyCooldown = 0
 		end
 	end
-	--lurker.update()
 	gamestate:update(dt)
 	timer = timer + dt
 	keyPreview:update(gamestate, dt)
@@ -193,21 +191,6 @@ function love.update(dt)
 		toplay:play()
 	end
 end
-
---[[
-function lurker.postswap(file)
-	if file:sub(0, 6) == "levels" then
-		local index = file:sub(8, -5)
-		Loader:reload(index)
-		gamestate:restart()
-	end
-	if gamestate.extra ~= extra then
-		gamestate.extra = extra
-		gamestate:reload()
-		gamestate:restart()
-	end
-end
---]]
 
 local function drawGamestate(gamestate, shiftScreen, skipFirst)
 	local gridCount = #gamestate.grids
@@ -426,15 +409,6 @@ function love.keypressed(key, _, isRepeat)
 					gamestate.moveCount = #inputs
 					gamestate:restart()
 				end
-				--[[
-			elseif key == "r" and love.keyboard.isDown("lshift") then
-				lurker.hotswapfile("main.lua")
-				gamestate:restart(true)
-			elseif key == "r" then
-				lurker.hotswapfile("main.lua")
-				gamestate.moveCount = 0
-				gamestate:restart()
-				--]]
 			end
 		end
 		if checks then
