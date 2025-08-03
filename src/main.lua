@@ -32,7 +32,7 @@ local solution = { "up", "up", "left", "up", "right", "right", "right", "right",
 --- DEV ZONE ---
 --- levels named [number].lua are loaded from the `./levels/` folder, you can load the chosen one using the number below
 --- the level live-updates when you save it's file, and reloads the game replaying all inputs to reach the same point you're in
-local level = 1  -- which level to load?
+local level = 15 -- which level to load?
 local extra = {} -- levels you always want to be loaded as preview
 --local extra = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } -- millions must load
 ---
@@ -141,7 +141,7 @@ function love.update(dt)
 			finale = 3
 		end
 	elseif finale == 3 then
-		transitionPercentage = transitionPercentage + dt / 30
+		transitionPercentage = transitionPercentage + dt / 3
 		if gamestate.moveCount / #gamestate.inputs < transitionPercentage then
 			gamestate:forward()
 		end
@@ -304,7 +304,6 @@ function love.draw()
 	love.graphics.clear()
 	--enableShaders? nah always
 	if enableShaders then
-		vignette:send("opacity", 0.3)
 		love.graphics.setShader(vignette)
 	end
 	love.graphics.draw(mainCanvas)
@@ -353,36 +352,16 @@ function love.draw()
 	love.graphics.setShader()
 end
 
+function triggerWin()
+end
+
 ---@diagnostic disable-next-line: duplicate-set-field
 function love.keypressed(key, _, isRepeat)
 	local directionName = bib.dirVec(key)
 	if not transitionState and finale == 0 then
 		if not isRepeat or keyCooldownKey ~= key or keyCooldown == 0 then
 			if directionName then
-				if gamestate:step(directionName, true) then
-					sounds.levelComplete:play()
-					if gamestate.level < 15 then
-						local newDepth = gamestate.depth
-						if newDepth == 0 then newDepth = 1 end
-						transitionState = Gamestate.new(gamestate.level + 1, newDepth)
-						transitionState.inputs = gamestate.inputs
-						transitionState.moveCount = 0
-						popup.next = gamestate.level .. "/15"
-						popup.nextDuration = 2
-						transitionPercentage = -0.5
-						if gamestate.depth > 0 then
-							gamestate.lockFirst = true
-						end
-					else
-						transitionState = Gamestate.new(0, 0, { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 })
-						transitionState.inputs = solution
-						transitionState.moveCount = 0
-						finale = 1
-						popup.next = "15/15"
-						popup.Duration = 2
-						transitionPercentage = -0.5
-					end
-				end
+				gamestate:step(directionName, true)
 			elseif key == "e" or (key == "y" and love.keyboard.isDown("lctrl")) or (key == "z" and love.keyboard.isDown("lctrl") and love.keyboard.isDown("lshift")) then
 				gamestate:forward()
 			elseif key == "q" or key == "backspace" or (key == "z" and love.keyboard.isDown("lctrl")) then
@@ -393,10 +372,10 @@ function love.keypressed(key, _, isRepeat)
 			keyCooldownKey = key
 		end
 		if not isRepeat then
-			if key == "e" and love.keyboard.isDown("lshift") then
+			if (key == "return") or (key == "e" and love.keyboard.isDown("lshift")) then
 				gamestate:moveToInput(#gamestate.inputs)
 				gamestate.moveCount = #gamestate.inputs
-			elseif key == "q" and love.keyboard.isDown("lshift") then
+			elseif (key == "r") or (key == "q" and love.keyboard.isDown("lshift")) then
 				gamestate:moveToInput(0)
 				gamestate.moveCount = 0
 			elseif key == "c" and love.keyboard.isDown("lctrl") then
@@ -406,7 +385,7 @@ function love.keypressed(key, _, isRepeat)
 				local worked, inputs = serpent.load("return " .. love.system.getClipboardText())
 				if worked then
 					gamestate.inputs = inputs
-					gamestate.moveCount = #inputs
+					gamestate.moveCount = 0
 					gamestate:restart()
 				end
 			end
@@ -415,6 +394,38 @@ function love.keypressed(key, _, isRepeat)
 			checks.inputs = gamestate.inputs
 			checks.moveCount = #gamestate.inputs
 			checks:moveToInput(gamestate.moveCount)
+		end
+		if gamestate:checkWin() then
+			sounds.levelComplete:play()
+			if gamestate.level < 15 then
+				local newDepth = gamestate.depth
+				if newDepth == 0 then newDepth = 1 end
+				transitionState = Gamestate.new(gamestate.level + 1, newDepth)
+				transitionState.inputs = gamestate.inputs
+				transitionState.moveCount = 0
+				popup.next = gamestate.level .. "/15"
+				popup.nextDuration = 2
+				transitionPercentage = -0.5
+				if gamestate.depth > 0 then
+					gamestate.lockFirst = true
+				end
+			else
+				transitionState = Gamestate.new(0, 0, { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 })
+				transitionState.inputs = solution
+				transitionState.moveCount = 0
+				finale = 1
+				popup.next = "15/15"
+				popup.Duration = 2
+				transitionPercentage = -0.5
+			end
+		end
+	end
+
+	if not isRepeat then
+		if key == "=" then
+			love.audio.setVolume(math.min(love.audio.getVolume() + 0.1, 2))
+		elseif key == "-" then
+			love.audio.setVolume(math.max(love.audio.getVolume() - 0.1, 0))
 		end
 	end
 end

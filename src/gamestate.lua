@@ -85,6 +85,9 @@ return {
 					self.inputs[self.moveCount] = directionName
 				end
 			end
+		end
+
+		function gamestate:checkWin()
 			if self.level > 0 then
 				for i = 1, self.depth + 1, 1 do
 					local status = gamestate:status()[i]
