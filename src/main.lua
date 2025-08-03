@@ -1,4 +1,4 @@
----@diagnostic disable-next-line: lowercase-global
+---@diagnost{"up", "up", "left", "up", "right", "right", "right", "right", "right", "up", "right", "right", "down", "down", "left", "down", "right", "right", "right", "right", "down", "right", "up", "up", "up", "up", "up", "up", "right", "up", "left", "left", "left", "left", "left", "left", "left", "left", "left", "left", "left", "up", "right", "right", "right", "right", "right", "left", "left", "left", "left", "left", "left", "down", "down", "down"}ic disable-next-line: lowercase-global
 serpent = require "lib.serpent"
 function sprint(table)
 	print(serpent.block(table))
@@ -34,7 +34,7 @@ local solution = { "up", "up", "left", "up", "right", "right", "right", "right",
 --- DEV ZONE ---
 --- levels named [number].lua are loaded from the `./levels/` folder, you can load the chosen one using the number below
 --- the level live-updates when you save it's file, and reloads the game replaying all inputs to reach the same point you're in
-local level = 10 -- which level to load?
+local level = 11 -- which level to load?
 local extra = {} -- levels you always want to be loaded as preview
 --local extra = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } -- millions must load
 ---
@@ -304,7 +304,7 @@ function love.draw()
 	love.graphics.clear()
 	--enableShaders? nah always
 	if enableShaders then
-		vignette:send("opacity", 0.2)
+		vignette:send("opacity", 0.1)
 		love.graphics.setShader(vignette)
 	end
 	love.graphics.draw(mainCanvas)
@@ -319,6 +319,14 @@ function love.draw()
 	end
 	love.graphics.setBlendMode("alpha")
 	love.graphics.setShader()
+	love.graphics.setCanvas()
+	if enableShaders then
+		vignette:send("opacity", 0.25)
+		love.graphics.setShader(vignette)
+	end
+	love.graphics.draw(bounceCanvas)
+	love.graphics.setShader()
+
 	local message =
 	{ { 1, 1, 1, 1 }, "FPS: " .. love.timer.getFPS() ..
 	"\nUse q/e to go back/forward in time, shift+q/e to go to the beginning/end of a set of inputs and r to hard restart\nUse: ctrl+c/ctrl+v to copy inputs to clipboard\nThe game reloads and replays your inputs whenver you update a level file, open up your editor with any levels/[num].lua file on another monitor\nCheck main.lua for level selection" }
@@ -344,13 +352,6 @@ function love.draw()
 	local y = 10 + sh
 
 	love.graphics.printf(message, x, y, love.graphics.getWidth() - x, "left")
-	love.graphics.setCanvas()
-	if enableShaders then
-		vignette:send("opacity", 0.4)
-		love.graphics.setShader(vignette)
-	end
-	love.graphics.draw(bounceCanvas)
-	love.graphics.setShader()
 end
 
 function triggerWin()

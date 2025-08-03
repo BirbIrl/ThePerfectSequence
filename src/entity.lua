@@ -34,9 +34,12 @@ return {
 			self.anims[#self.anims + 1] = tween.new(duration,
 				{ type = "opacity", amount = 1 }, { amount = 0 }, "outCubic")
 			local scaleAmount = 0.5
-			if self.type == "glass" or self.type == "box" then
+			if self.type == "glass" then
 				scaleAmount = 0.9
 				self.sound = sounds.falltile
+			elseif self.type == "box" then
+				self.sound = sounds.falltile
+				scaleAmount = 0.3
 			elseif self.type == "player" then
 				self.sound = sounds.die
 			end
@@ -221,7 +224,7 @@ return {
 				love.graphics.draw(sprites.player.body, pos.x, pos.y)
 				love.graphics.draw(self.data.eyes, pos.x, pos.y)
 			elseif self.type == "box" then
-				love.graphics.translate(0, -5)
+				love.graphics.translate(0, -4)
 				love.graphics.draw(sprites.box, pos.x, pos.y)
 				if self.tile:findEntities("exit")[1] then
 					love.graphics.setColor(0.2, 0.8, 0.2, opacity)
@@ -237,6 +240,14 @@ return {
 					love.graphics.setColor(0.6, 0.15, 0.15, opacity)
 				end
 				love.graphics.draw(sprites.exitRim, pos.x, pos.y)
+			elseif self.type == "sensor" then
+				love.graphics.draw(sprites.sensor, pos.x, pos.y)
+				if self.data.triggered then
+					love.graphics.setColor(0.2, 0.8, 0.2, opacity)
+				else
+					love.graphics.setColor(0.6, 0.15, 0.15, opacity)
+				end
+				love.graphics.draw(sprites.sensorRim, pos.x, pos.y)
 			elseif self.type == "glass" then
 				love.graphics.setColor(colors.blend(colors.list["Sky Blue"], { nil, nil, nil, opacity * 0.2 }, 1))
 				love.graphics.draw(sprites.glass, pos.x, pos.y)

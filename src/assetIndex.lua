@@ -54,6 +54,8 @@ return {
 		box = i(s .. "box.png"),
 		exit = i(s .. "exit.png"),
 		exitRim = i(s .. "exitRim.png"),
+		sensor = i(s .. "sensor.png"),
+		sensorRim = i(s .. "sensorRim.png"),
 		boxRim = i(s .. "boxRim.png"),
 		glass = i(s .. "glass.png"),
 		ground = i(s .. "ground.png"),
