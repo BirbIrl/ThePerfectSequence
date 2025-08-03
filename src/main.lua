@@ -344,7 +344,7 @@ function love.draw()
 
 	love.graphics.printf(message, x, y, love.graphics.getWidth() - x, "left")
 	love.graphics.setCanvas()
-	if enableshaders then
+	if enableShaders then
 		vignette:send("opacity", 0.4)
 		love.graphics.setShader(vignette)
 	end
