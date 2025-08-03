@@ -10,6 +10,8 @@ end
 --fix redoing and not triggering a win
 --rewind shader
 enableShaders = true
+platform = love.system.getOS()
+
 local assets = require("assetIndex")
 sprites = assets.sprites
 sounds = assets.sounds
@@ -141,7 +143,7 @@ function love.update(dt)
 			finale = 3
 		end
 	elseif finale == 3 then
-		transitionPercentage = transitionPercentage + dt / 3
+		transitionPercentage = transitionPercentage + dt / 30
 		if gamestate.moveCount / #gamestate.inputs < transitionPercentage then
 			gamestate:forward()
 		end
@@ -378,10 +380,10 @@ function love.keypressed(key, _, isRepeat)
 			elseif (key == "r") or (key == "q" and love.keyboard.isDown("lshift")) then
 				gamestate:moveToInput(0)
 				gamestate.moveCount = 0
-			elseif key == "c" and love.keyboard.isDown("lctrl") then
+			elseif platform ~= "web" and key == "c" and love.keyboard.isDown("lctrl") then
 				love.system.setClipboardText(serpent.serialize(gamestate.inputs,
 					{ nocode = true, sparse = true, comment = false, }))
-			elseif key == "v" and love.keyboard.isDown("lctrl") then
+			elseif platform ~= "web" and key == "v" and love.keyboard.isDown("lctrl") then
 				local worked, inputs = serpent.load("return " .. love.system.getClipboardText())
 				if worked then
 					gamestate.inputs = inputs
