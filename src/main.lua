@@ -34,7 +34,7 @@ local solution = { "up", "up", "left", "up", "right", "right", "right", "right",
 --- DEV ZONE ---
 --- levels named [number].lua are loaded from the `./levels/` folder, you can load the chosen one using the number below
 --- the level live-updates when you save it's file, and reloads the game replaying all inputs to reach the same point you're in
-local level = 11 -- which level to load?
+local level = 7  -- which level to load?
 local extra = {} -- levels you always want to be loaded as preview
 --local extra = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } -- millions must load
 ---
@@ -304,7 +304,7 @@ function love.draw()
 	love.graphics.clear()
 	--enableShaders? nah always
 	if enableShaders then
-		vignette:send("opacity", 0.1)
+		vignette:send("opacity", 0.15)
 		love.graphics.setShader(vignette)
 	end
 	love.graphics.draw(mainCanvas)
@@ -321,7 +321,7 @@ function love.draw()
 	love.graphics.setShader()
 	love.graphics.setCanvas()
 	if enableShaders then
-		vignette:send("opacity", 0.25)
+		vignette:send("opacity", 0.4)
 		love.graphics.setShader(vignette)
 	end
 	love.graphics.draw(bounceCanvas)
