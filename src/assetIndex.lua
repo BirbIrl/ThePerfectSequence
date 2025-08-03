@@ -60,6 +60,7 @@ return {
 		glass = i(s .. "glass.png"),
 		ground = i(s .. "ground.png"),
 		groundfade = i(s .. "groundfade.png"),
+		guide = i(s .. "guide.png"),
 	},
 	sounds = {
 		die = a(so .. "die.ogg", "static"),

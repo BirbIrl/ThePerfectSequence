@@ -44,12 +44,7 @@ else
 end
 local finale = 0
 local startFadeInPercentage = 0
-local guideOpacity = 1
-local guideDisplay = true
-local toggledGuideBefore = false
 local muteMusic = false
-local beenDeadFor = 0
-local deathHintOpacity = 0
 local chroma, scan, vignette
 chroma = love.graphics.newShader("assets/shaders/chroma.vert")
 chroma:send("elapsed", love.timer.getTime())
@@ -85,6 +80,7 @@ function love.load()
 	local loopStart = 20 - 1
 	loopEnd = song:getDuration("seconds") - 1.2732
 	loopLength = loopEnd - loopStart
+	song:play()
 	song:setVolume(0.8)
 end
 
@@ -95,14 +91,14 @@ local timer = 0
 function love.update(dt)
 	if not muteMusic then
 		if finale == 0 then
-			song:setVolume(0.8)
+			song:setVolume(1)
 		elseif finale == 2 then
-			song:setVolume(bib.clamp(0, (1 - transitionPercentage) * 0.8, 1))
+			song:setVolume(bib.clamp(0, 1 - transitionPercentage, 1))
 		elseif finale == 4 and song:getVolume() < 1 then
 			if song:getVolume() == 0 then
 				song:seek(0)
 			end
-			song:setVolume(bib.clamp(0, transitionPercentage * 0.8, 1))
+			song:setVolume(bib.clamp(0, transitionPercentage, 1))
 		end
 	end
 	local now = song:tell("seconds")
@@ -117,27 +113,11 @@ function love.update(dt)
 	end
 	gamestate:update(dt)
 	timer = timer + dt -- i don't remember why i did this wtf
-
-	if startFadeInPercentage < 0.98 then
-		startFadeInPercentage = bib.lerp(startFadeInPercentage, 1.2, dt / 2.5)
+	if startFadeInPercentage < 0.95 then
+		startFadeInPercentage = bib.lerp(startFadeInPercentage, 1, dt / 3)
 	else
 		startFadeInPercentage = 1
 	end
-
-	if guideDisplay then
-		if guideOpacity < 0.98 then
-			guideOpacity = bib.lerp(guideOpacity, 1.2, dt * 1.5)
-		else
-			guideOpacity = 1
-		end
-	elseif guideOpacity > 0.02 then
-		guideOpacity = bib.lerp(guideOpacity, -0.2, dt * 1.5)
-	else
-		guideOpacity = 0
-		toggledGuideBefore = true
-	end
-
-
 	keyPreview:update(gamestate, dt)
 	if enableShaders then
 		chroma:send("elapsed", love.timer.getTime())
@@ -182,33 +162,6 @@ function love.update(dt)
 			transitionPercentage = transitionPercentage + dt
 		end
 	end
-	if gamestate then
-		local hit = false
-		for _, status in ipairs(gamestate:status()) do
-			if status.state == "failed" then
-				beenDeadFor = beenDeadFor + dt
-				hit = true
-				break
-			end
-		end
-		if not hit then
-			beenDeadFor = 0
-		end
-	end
-
-	if beenDeadFor > 1 then
-		if deathHintOpacity < 0.98 then
-			deathHintOpacity = bib.lerp(deathHintOpacity, 1.2, dt)
-		else
-			deathHintOpacity = 1
-		end
-	elseif deathHintOpacity > 0.02 then
-		deathHintOpacity = bib.lerp(deathHintOpacity, -0.2, dt * 2)
-	else
-		deathHintOpacity = 0
-	end
-	-- last 3 hours into the jam i made these couple of lerpers, i am jank lord, god of terrible mutable state handling
-
 	if popup.duration > 0 then
 		popup.duration = popup.duration - dt
 		popup.showPercent = bib.lerp(popup.showPercent, 1, dt * popup.revealRate)
@@ -334,11 +287,6 @@ function love.draw()
 	love.graphics.setBlendMode("alpha")
 	keyPreview:draw(gamestate)
 	love.graphics.setColor(1, 1, 1, 1)
-	if deathHintOpacity > 0 then
-		love.graphics.setColor(1, 1, 1, deathHintOpacity)
-		love.graphics.printf("Press Q to undo", font, 0, 460, sw * 3, "center", 0, 0.33, 0.33)
-		love.graphics.setColor(1, 1, 1, 1)
-	end
 	if finale == 4 then
 		local opacity = bib.clamp(0, transitionPercentage, 1)
 		love.graphics.setColor(18 / 256, 32 / 256, 32 / 256, opacity)
@@ -349,31 +297,7 @@ function love.draw()
 		if transitionPercentage > 12 - 1.25 then
 			love.graphics.printf(" Thank You For Playing!", font, 0, 520, sw * 2, "center", 0, 0.5, 0.5)
 		end
-	elseif guideOpacity > 0 then
-		love.graphics.setColor(18 / 256, 32 / 256, 32 / 256, guideOpacity)
-		love.graphics.rectangle("fill", 0, 0, sw, sh)
-		love.graphics.setColor(1, 1, 1, guideOpacity)
-		love.graphics.draw(sprites.guide, -sw / 4, -sh / 4 - 50, 0, 3, 3)
-		love.graphics.printf("Continue/\nOpen This", font, 25, 412, 900, "center", 0, 0.25, 0.25)
-		love.graphics.printf("Movement", font, 200, 430, 900, "center", 0, 0.25, 0.25)
-		love.graphics.printf("Mute Music", font, 400, 430, 900, "center", 0, 0.25, 0.25)
-		love.graphics.printf("Replay", font, 640, 430, 900, "center", 0, 0.25, 0.25)
-		love.graphics.printf("Undo", font, 25, 92, 900, "center", 0, 0.25, 0.25)
-		love.graphics.printf("Redo", font, 160, 92, 900, "center", 0, 0.25, 0.25)
-		love.graphics.printf("Restart", font, 300, 92, 900, "center", 0, 0.25, 0.25)
-		love.graphics.printf("Toggle\nShaders", font, 440, 76, 900, "center", 0, 0.25, 0.25)
-		love.graphics.printf("Volume", font, 610, 92, 900, "center", 0, 0.25, 0.25)
-		local message = "Press SHIFT to begin"
-		if toggledGuideBefore then
-			message = "Press SHIFT to continue"
-		end
-		love.graphics.printf(message, font, 0, 510, sw * 2, "center", 0, 0.5, 0.5)
 	end
-	if startFadeInPercentage < 1 then
-		love.graphics.setColor(18 / 256, 32 / 256, 32 / 256, 1 - startFadeInPercentage)
-		love.graphics.rectangle("fill", 0, 0, sw, sh)
-	end
-	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.setCanvas(bounceCanvas)
 	love.graphics.setBlendMode("alpha", "premultiplied")
 	if enableShaders then
@@ -454,14 +378,9 @@ function love.keypressed(key, _, isRepeat)
 			love.audio.setVolume(math.min(love.audio.getVolume() + 0.1, 2))
 		elseif key == "-" then
 			love.audio.setVolume(math.max(love.audio.getVolume() - 0.1, 0))
-		elseif key == "t" or (key == "s" and love.keyboard.isDown("lctrl")) then
+		elseif key == "s" and love.keyboard.isDown("lctrl") then
 			enableShaders = not enableShaders
 			return
-		elseif key == "lshift" or key == "rshift" then
-			guideDisplay = not guideDisplay
-			if not song:isPlaying() then
-				song:play()
-			end
 		elseif key == "m" then
 			muteMusic = not muteMusic
 			if muteMusic then
@@ -469,7 +388,7 @@ function love.keypressed(key, _, isRepeat)
 			end
 		end
 	end
-	if not guideDisplay and not transitionState and finale == 0 then
+	if not transitionState and finale == 0 then
 		if not isRepeat or keyCooldownKey ~= key or keyCooldown == 0 then
 			if directionName then
 				gamestate:step(directionName, true)
