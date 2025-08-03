@@ -1,3 +1,3 @@
 silly gmtk 2025 jam game
 
-more info here: https://birbirl.itch.io/the-perfect-sequence
+play it and read more about it here: https://birbirl.itch.io/the-perfect-sequence
