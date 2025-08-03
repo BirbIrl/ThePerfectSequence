@@ -1,14 +1,11 @@
----@diagnost{"up", "up", "left", "up", "right", "right", "right", "right", "right", "up", "right", "right", "down", "down", "left", "down", "right", "right", "right", "right", "down", "right", "up", "up", "up", "up", "up", "up", "right", "up", "left", "left", "left", "left", "left", "left", "left", "left", "left", "left", "left", "up", "right", "right", "right", "right", "right", "left", "left", "left", "left", "left", "left", "down", "down", "down"}ic disable-next-line: lowercase-global
+-- "this is some of the worst code i've ever written in my life. - Birbirl, who decided not to care about keeping the code clean past the second day
 serpent = require "lib.serpent"
 function sprint(table)
 	print(serpent.block(table))
 end
 
 --TODO:
---sprites
 --help screen
---fix redoing and not triggering a win
---rewind shader
 enableShaders = true
 platform = love.system.getOS()
 
@@ -124,7 +121,7 @@ function love.update(dt)
 			if gamestate.moveCount / #gamestate.inputs > 1 - transitionPercentage then
 				gamestate:backwards()
 			end
-			if transitionPercentage > tCap * 0.9 then
+			if transitionPercentage > tCap * 0.92 then
 				transitionPercentage = 0
 				gamestate = transitionState
 				transitionState = nil
@@ -244,6 +241,9 @@ local function drawGamestate(gamestate, shiftScreen, skipFirst)
 	end
 	for i, grid in ipairs(grids) do
 		if not (skipFirst and i == 1) then
+			if (finale == 0 and i == 2 and transitionPercentage < 0 and shiftScreen) then
+				break
+			end
 			grid:draw(((i - 1) % wrap) * gridSize * scale + paddingW +
 				transitionShift,
 				(math.floor((i - 1) / wrap)) * gridSize * scale + paddingH + transitionShiftY,
@@ -285,7 +285,7 @@ function love.draw()
 		love.graphics.setColor(0.97, 0.96, 0.98, opacity)
 		love.graphics.printf("The Perfect Sequence", font, 0, 50, sw * 2, "center", 0, 0.5, 0.5)
 		credits(transitionPercentage - 1, font)
-		if transitionPercentage > 12 then
+		if transitionPercentage > 12 - 1.25 then
 			love.graphics.printf(" Thank You For Playing!", font, 0, 520, sw * 2, "center", 0, 0.5, 0.5)
 		end
 	end
@@ -324,7 +324,16 @@ function love.draw()
 		vignette:send("opacity", 0.4)
 		love.graphics.setShader(vignette)
 	end
-	love.graphics.draw(bounceCanvas)
+	if enableShaders then
+		love.graphics.push()
+		love.graphics.translate(sw / 2, sh / 2)
+		love.graphics.scale(1.035, 1.035)
+		love.graphics.translate(-sw / 2, -sh / 2)
+		love.graphics.draw(bounceCanvas)
+		love.graphics.pop()
+	else
+		love.graphics.draw(bounceCanvas)
+	end
 	love.graphics.setShader()
 
 	local message =
@@ -352,9 +361,6 @@ function love.draw()
 	local y = 10 + sh
 
 	love.graphics.printf(message, x, y, love.graphics.getWidth() - x, "left")
-end
-
-function triggerWin()
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field

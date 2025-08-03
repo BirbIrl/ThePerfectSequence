@@ -4,7 +4,8 @@ uniform bool alphaStuff;
 vec2 radialDistortion(vec2 coord, float dist) {
     vec2 cc = coord - 0.5;
     float distFactor = smoothstep(0.0, 0.5, length(cc));
-    dist = distFactor * (dot(cc, cc) * dist + cos(elapsed * .3) * .005);
+    float fishness = 1;
+    dist = distFactor * (dot(cc, cc) * dist * fishness + cos(elapsed * .3) * .001);
     return (coord + cc * (1.0 + dist) * dist);
 }
 
