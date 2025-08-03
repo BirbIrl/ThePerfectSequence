@@ -43,6 +43,7 @@ else
 	depth = 1
 end
 local finale = 0
+local muteMusic = false
 local chroma, scan, vignette
 chroma = love.graphics.newShader("assets/shaders/chroma.vert")
 chroma:send("elapsed", love.timer.getTime())
@@ -87,15 +88,17 @@ local keyCooldown = 0
 local keyCooldownKey = nil
 local timer = 0
 function love.update(dt)
-	if finale == 0 then
-		song:setVolume(1)
-	elseif finale == 2 then
-		song:setVolume(bib.clamp(0, 1 - transitionPercentage, 1))
-	elseif finale == 4 and song:getVolume() < 1 then
-		if song:getVolume() == 0 then
-			song:seek(0)
+	if not muteMusic then
+		if finale == 0 then
+			song:setVolume(1)
+		elseif finale == 2 then
+			song:setVolume(bib.clamp(0, 1 - transitionPercentage, 1))
+		elseif finale == 4 and song:getVolume() < 1 then
+			if song:getVolume() == 0 then
+				song:seek(0)
+			end
+			song:setVolume(bib.clamp(0, transitionPercentage, 1))
 		end
-		song:setVolume(bib.clamp(0, transitionPercentage, 1))
 	end
 	local now = song:tell("seconds")
 	if (now >= loopEnd) then
@@ -318,13 +321,10 @@ function love.draw()
 		chroma:send("alphaStuff", false)
 	end
 	love.graphics.setBlendMode("alpha")
-	love.graphics.setShader()
 	love.graphics.setCanvas()
 	if enableShaders then
 		vignette:send("opacity", 0.4)
 		love.graphics.setShader(vignette)
-	end
-	if enableShaders then
 		love.graphics.push()
 		love.graphics.translate(sw / 2, sh / 2)
 		love.graphics.scale(1.035, 1.035)
@@ -333,6 +333,7 @@ function love.draw()
 		love.graphics.pop()
 	else
 		love.graphics.draw(bounceCanvas)
+		love.graphics.setShader()
 	end
 	love.graphics.setShader()
 
@@ -375,6 +376,11 @@ function love.keypressed(key, _, isRepeat)
 		elseif key == "s" and love.keyboard.isDown("lctrl") then
 			enableShaders = not enableShaders
 			return
+		elseif key == "m" then
+			muteMusic = not muteMusic
+			if muteMusic then
+				song:setVolume(0)
+			end
 		end
 	end
 	if not transitionState and finale == 0 then
